@@ -28,6 +28,7 @@ class Company
     )]
     #[Groups([
         'Company',
+        'Job',
         'Company.id',
     ])]
     private UuidInterface $id;
@@ -38,6 +39,7 @@ class Company
     #[Assert\Length( min: 5, max: 255)]
     #[Groups([
         'Company',
+        'Job',
         'Company.name',
     ])]
     private ?string $name = null;
@@ -45,6 +47,7 @@ class Company
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([
         'Company',
+        'Job',
         'Company.description',
     ])]
     private ?string $description = null;
@@ -54,6 +57,7 @@ class Company
     #[ORM\Column(length: 255)]
     #[Groups([
         'Company',
+        'Job',
         'Company.location',
     ])]
     private ?string $location = null;
@@ -64,6 +68,7 @@ class Company
     #[ORM\Column(length: 255)]
     #[Groups([
         'Company',
+        'Job',
         'Company.contactEmail',
     ])]
     private ?string $contactEmail = null;

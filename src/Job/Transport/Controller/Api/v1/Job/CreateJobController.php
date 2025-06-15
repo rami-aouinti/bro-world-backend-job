@@ -57,9 +57,8 @@ class CreateJobController
 
         $violations = $this->validator->validate($job);
 
-        if(count($violations) === 0){
-            $this->jobRepository->save($job, true);
-        }
+        $this->jobRepository->save($job, true);
+
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
