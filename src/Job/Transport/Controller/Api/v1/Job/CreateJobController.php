@@ -28,7 +28,8 @@ class CreateJobController
     public function __construct(
         private readonly SerializerInterface $serializer,
         private readonly JobRepository $jobRepository,
-        private readonly CompanyRepository $companyRepository
+        private readonly CompanyRepository $companyRepository,
+        private readonly ValidatorInterface $validator
     ) {
     }
 
@@ -41,7 +42,7 @@ class CreateJobController
         path: '/v1/job',
         methods: [Request::METHOD_POST],
     )]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request, ValidatorInterface $validator): JsonResponse
+    public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $jsonParams = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -54,7 +55,7 @@ class CreateJobController
         $job->setCompany($company);
         $job->setExperience($jsonParams['experience']);
 
-        $violations = $validator->validate($job);
+        $violations = $this->validator->validate($job);
 
         if(count($violations) === 0){
             $this->jobRepository->save($job, true);

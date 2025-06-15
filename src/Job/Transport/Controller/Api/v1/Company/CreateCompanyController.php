@@ -28,7 +28,8 @@ class CreateCompanyController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly CompanyRepository $companyRepository
+        private readonly CompanyRepository $companyRepository,
+        private readonly ValidatorInterface $validator
     ) {
     }
 
@@ -41,7 +42,7 @@ class CreateCompanyController
         path: '/v1/company',
         methods: [Request::METHOD_POST],
     )]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request, ValidatorInterface $validator): JsonResponse
+    public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $jsonParams = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -51,7 +52,7 @@ class CreateCompanyController
         $company->setLocation($jsonParams['location']);
         $company->setContactEmail($jsonParams['contactEmail']);
 
-        $violations = $validator->validate($company);
+        $violations = $this->validator->validate($company);
         $this->companyRepository->save($company, true);
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
