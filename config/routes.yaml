@@ -1,0 +1,8 @@
+job-controllers:
+    resource:
+        path: ../src/Job/Transport/Controller/Api/
+        namespace: App\Job\Transport\Controller\Api
+    type: attribute
+    prefix: /api
+    defaults:
+        _format: json
