@@ -6,6 +6,7 @@ namespace App\Job\Transport\Controller\Api\v1\Company;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\CompanyRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -20,11 +21,12 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Company')]
-class IndexController
+readonly class IndexController
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly CompanyRepository $companyRepository
+        private SerializerInterface $serializer,
+        private CompanyRepository   $companyRepository,
+        private UserProxy           $userProxy
     ) {
     }
 
@@ -39,11 +41,19 @@ class IndexController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
+        $users = $this->userProxy->getUsers();
+
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersById[$user['id']] = $user;
+        }
+
         $companies = $this->companyRepository->findAll();
 
         $response = [];
-        foreach ($companies as $company){
-            $response[] = $company->toArray();
+        foreach ($companies as $key => $company){
+            $response[$key] = $company->toArray();
+            $response[$key]['user'] = $usersById[$company->getUser()->toString()] ?? null;
         }
 
         /** @var array<string, string|array<string, string>> $output */

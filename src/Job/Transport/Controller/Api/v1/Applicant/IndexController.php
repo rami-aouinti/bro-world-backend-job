@@ -6,6 +6,7 @@ namespace App\Job\Transport\Controller\Api\v1\Applicant;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\ApplicantRepository;
 use App\Job\Infrastructure\Repository\CompanyRepository;
 use JsonException;
@@ -21,11 +22,12 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Applicant')]
-class IndexController
+readonly class IndexController
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly ApplicantRepository $applicantRepository
+        private SerializerInterface $serializer,
+        private ApplicantRepository $applicantRepository,
+        private UserProxy           $userProxy
     ) {
     }
 
@@ -40,11 +42,19 @@ class IndexController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
+        $users = $this->userProxy->getUsers();
+
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersById[$user['id']] = $user;
+        }
+
         $applicants = $this->applicantRepository->findAll();
 
         $response = [];
-        foreach ($applicants as $applicant){
-            $response[] = $applicant->toArray();
+        foreach ($applicants as $key => $applicant){
+            $response[$key] = $applicant->toArray();
+            $response[$key]['user'] = $usersById[$applicant->getUser()->toString()] ?? null;
         }
 
         /** @var array<string, string|array<string, string>> $output */

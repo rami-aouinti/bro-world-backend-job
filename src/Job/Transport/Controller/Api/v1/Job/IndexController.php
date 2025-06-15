@@ -6,6 +6,7 @@ namespace App\Job\Transport\Controller\Api\v1\Job;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\JobRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -20,11 +21,12 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Job')]
-class IndexController
+readonly class IndexController
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly JobRepository $jobRepository
+        private SerializerInterface $serializer,
+        private JobRepository       $jobRepository,
+        private UserProxy           $userProxy
     ) {
     }
 
@@ -39,6 +41,13 @@ class IndexController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
+        $users = $this->userProxy->getUsers();
+
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersById[$user['id']] = $user;
+        }
+
         $qb = $this->jobRepository->createQueryBuilder('j');
 
         $title = $request->query->get('title');
@@ -64,8 +73,9 @@ class IndexController
         $jobs = $qb->getQuery()->getResult();
 
         $response = [];
-        foreach ($jobs as $job) {
-            $response[] = $job->toArray();
+        foreach ($jobs as $key => $job) {
+            $response[$key] = $job->toArray();
+            $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
         }
 
         /** @var array<string, string|array<string, string>> $output */
