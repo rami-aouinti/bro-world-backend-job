@@ -37,7 +37,7 @@ class UpdateApplicantController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/company/{applicant}',
+        path: '/v1/applicant/{applicant}',
         methods: [Request::METHOD_PUT],
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request, Applicant $applicant): JsonResponse

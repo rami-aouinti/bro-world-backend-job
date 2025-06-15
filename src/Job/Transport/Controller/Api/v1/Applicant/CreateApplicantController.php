@@ -42,7 +42,7 @@ class CreateApplicantController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/company',
+        path: '/v1/applicant',
         methods: [Request::METHOD_POST],
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
