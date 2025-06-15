@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Job\Transport\Controller\Api\v1\Job;
+namespace App\Job\Transport\Controller\Api\v1\Company;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
-use App\Job\Infrastructure\Repository\JobRepository;
+use App\Job\Infrastructure\Repository\CompanyRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,15 +16,15 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @package App\Job
+ * @package App\Company
  */
 #[AsController]
-#[OA\Tag(name: 'Job')]
+#[OA\Tag(name: 'Company')]
 class IndexController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly JobRepository $jobRepository
+        private readonly CompanyRepository $companyRepository
     ) {
     }
 
@@ -34,38 +34,16 @@ class IndexController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/job',
+        path: '/v1/company',
         methods: [Request::METHOD_GET],
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
-        $qb = $this->jobRepository->createQueryBuilder('j');
-
-        $title = $request->query->get('title');
-        if ($title !== null) {
-            $qb->andWhere('j.title = :title')
-                ->setParameter('title', $title);
-        }
-
-        $companyName = $request->query->get('company');
-        if ($companyName !== null) {
-            $qb->join('j.company', 'c')
-                ->andWhere('c.name = :companyName')
-                ->setParameter('companyName', $companyName);
-        }
-
-        $location = $request->query->get('location');
-        if ($location !== null) {
-            $qb->join('j.company', 'c')
-                ->andWhere('c.location = :location')
-                ->setParameter('location', $location);
-        }
-
-        $jobs = $qb->getQuery()->getResult();
+        $companies = $this->companyRepository->findAll();
 
         $response = [];
-        foreach ($jobs as $job) {
-            $response[] = $job->toArray();
+        foreach ($companies as $company){
+            $response[] = $company->toArray();
         }
 
         /** @var array<string, string|array<string, string>> $output */
@@ -74,7 +52,7 @@ class IndexController
                 $response,
                 'json',
                 [
-                    'groups' => 'Job',
+                    'groups' => 'Company',
                 ]
             ),
             true,

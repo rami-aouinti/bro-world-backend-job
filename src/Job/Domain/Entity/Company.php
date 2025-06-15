@@ -36,20 +36,36 @@ class Company
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length( min: 5, max: 255)]
+    #[Groups([
+        'Company',
+        'Company.name',
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups([
+        'Company',
+        'Company.description',
+    ])]
     private ?string $description = null;
 
     #[Assert\NotBlank]
     #[Assert\Length( min: 5, max: 255)]
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'Company',
+        'Company.location',
+    ])]
     private ?string $location = null;
 
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\Length( min: 5, max: 255)]
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'Company',
+        'Company.contactEmail',
+    ])]
     private ?string $contactEmail = null;
 
     /**
