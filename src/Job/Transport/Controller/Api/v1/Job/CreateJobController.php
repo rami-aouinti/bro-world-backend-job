@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @package App\Job
@@ -53,6 +54,7 @@ class CreateJobController
         $job->setDescription($jsonParams['description']);
         $job->setRequiredSkills($jsonParams['requiredSkills']);
         $job->setCompany($company);
+        $job->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
         $job->setExperience($jsonParams['experience']);
 
         $violations = $this->validator->validate($job);

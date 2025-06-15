@@ -73,6 +73,13 @@ class Company
     ])]
     private ?string $contactEmail = null;
 
+    #[ORM\Column(type: 'uuid')]
+    #[Groups([
+        'Job',
+        'Job.user',
+    ])]
+    private UuidInterface $user;
+
     /**
      * @throws Throwable
      */
@@ -158,6 +165,16 @@ class Company
         return $this;
     }
 
+    public function getUser(): UuidInterface
+    {
+        return $this->user;
+    }
+
+    public function setUser(UuidInterface $user): void
+    {
+        $this->user = $user;
+    }
+
     public function toArray(): array
     {
         return [
@@ -166,6 +183,7 @@ class Company
             "description"=>$this->getDescription(),
             "location"=>$this->getLocation(),
             "contactEmail"=>$this->getContactEmail(),
+            "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()
         ];

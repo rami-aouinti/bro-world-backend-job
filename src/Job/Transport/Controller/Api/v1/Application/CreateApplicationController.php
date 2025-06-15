@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Job\Transport\Controller\Api\v1\Company;
+namespace App\Job\Transport\Controller\Api\v1\Application;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Domain\Entity\Applicant;
 use App\Job\Domain\Entity\Company;
 use App\Job\Domain\Entity\Job;
+use App\Job\Domain\Entity\JobApplication;
 use App\Job\Infrastructure\Repository\CompanyRepository;
+use App\Job\Infrastructure\Repository\JobApplicationRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -21,15 +24,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @package App\Job
+ * @package App\Application
  */
 #[AsController]
-#[OA\Tag(name: 'Company')]
-class CreateCompanyController
+#[OA\Tag(name: 'Application')]
+class CreateApplicationController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly CompanyRepository $companyRepository,
+        private readonly JobApplicationRepository $jobApplicationRepository,
         private readonly ValidatorInterface $validator
     ) {
     }
@@ -40,28 +43,28 @@ class CreateCompanyController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/company',
+        path: '/v1/application/{job}/{applicant}',
         methods: [Request::METHOD_POST],
     )]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
+    public function __invoke(
+        SymfonyUser $loggedInUser,
+        Request $request,
+        Job $job,
+        Applicant $applicant
+    ): JsonResponse
     {
-        $jsonParams = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-        $company = new Company();
-        $company->setName($jsonParams['name']);
-        $company->setDescription($jsonParams['description']);
-        $company->setLocation($jsonParams['location']);
-        $company->setContactEmail($jsonParams['contactEmail']);
-        $company->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
-        $violations = $this->validator->validate($company);
-        $this->companyRepository->save($company, true);
+        $jobApplication = new JobApplication();
+        $jobApplication->setJob($job);
+        $jobApplication->setApplicant($applicant);
+        $violations = $this->validator->validate($jobApplication);
+        $this->jobApplicationRepository->save($jobApplication, true);
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                $company,
+                $jobApplication,
                 'json',
                 [
-                    'groups' => 'Company',
+                    'groups' => 'Application',
                 ]
             ),
             true,

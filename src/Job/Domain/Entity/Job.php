@@ -75,6 +75,13 @@ class Job
     ])]
     private ?Company $company = null;
 
+    #[ORM\Column(type: 'uuid')]
+    #[Groups([
+        'Job',
+        'Job.user',
+    ])]
+    private UuidInterface $user;
+
     /**
      * @throws Throwable
      */
@@ -92,8 +99,6 @@ class Job
     {
         return $this->getTitle();
     }
-
-
 
     public function getTitle(): ?string
     {
@@ -155,6 +160,16 @@ class Job
         return $this;
     }
 
+    public function getUser(): UuidInterface
+    {
+        return $this->user;
+    }
+
+    public function setUser(UuidInterface $user): void
+    {
+        $this->user = $user;
+    }
+
     public function toArray(): array
     {
         return [
@@ -164,6 +179,7 @@ class Job
             "requiredSkills"=>$this->getRequiredSkills(),
             "experience"=>$this->getExperience(),
             "company"=>$this->getCompany()?->toArray(),
+            "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()
         ];

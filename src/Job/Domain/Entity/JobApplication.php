@@ -26,19 +26,27 @@ class JobApplication
         nullable: false,
     )]
     #[Groups([
-        'JobApplication',
-        'JobApplication.id',
+        'Application',
+        'Application.id',
     ])]
     private UuidInterface $id;
 
     #[Assert\NotBlank]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups([
+        'Application',
+        'Application.job',
+    ])]
     private ?Job $job = null;
 
     #[Assert\NotBlank]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups([
+        'Application',
+        'Application.applicant',
+    ])]
     private ?Applicant $applicant = null;
 
     /**
@@ -78,36 +86,12 @@ class JobApplication
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
     public function toArray(): array
     {
         return [
             "id"=>$this->getId(),
-            "applicant"=>$this->getApplicant()->toArray(),
-            "job"=>$this->getJob()->toArray(),
+            "applicant"=>$this->getApplicant()?->toArray(),
+            "job"=>$this->getJob()?->toArray(),
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()
         ];

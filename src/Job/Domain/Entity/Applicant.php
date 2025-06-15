@@ -35,16 +35,35 @@ class Applicant
     #[Assert\NotBlank]
     #[Assert\Length( min: 5, max: 255)]
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'Applicant',
+        'Applicant.name',
+    ])]
     private ?string $name = null;
 
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\Length( min: 5, max: 255)]
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'Applicant',
+        'Applicant.contactEmail',
+    ])]
     private ?string $contactEmail = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups([
+        'Applicant',
+        'Applicant.jobPreferences',
+    ])]
     private ?string $jobPreferences = null;
+
+    #[ORM\Column(type: 'uuid')]
+    #[Groups([
+        'Job',
+        'Job.user',
+    ])]
+    private UuidInterface $user;
 
     /**
      * @throws Throwable
@@ -95,6 +114,16 @@ class Applicant
         return $this;
     }
 
+    public function getUser(): UuidInterface
+    {
+        return $this->user;
+    }
+
+    public function setUser(UuidInterface $user): void
+    {
+        $this->user = $user;
+    }
+
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
@@ -126,6 +155,7 @@ class Applicant
             "name"=>$this->getName(),
             "contactEmail"=>$this->getContactEmail(),
             "jobPreferences"=>$this->getJobPreferences(),
+            "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()
         ];
