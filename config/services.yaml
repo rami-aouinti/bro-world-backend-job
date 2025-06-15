@@ -7,6 +7,9 @@ parameters:
     locale: 'en'
     app.notifications.email_sender: admin@localhost
     api_media_base_url: '%env(API_MEDIA_BASE_URL)%'
+    uploads_directory: '%kernel.project_dir%/public/uploads'
+    uploadAbsoluteDir: '%kernel.project_dir%/public/%uploadDir%'
+    uploadDir: 'uploads'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -14,7 +17,11 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $projectDir: '%kernel.project_dir%'
+            $projectDirectory: '%kernel.project_dir%'
             $environment: '%kernel.environment%'
+            $kernelEnvironment: '%kernel.environment%'
+            $uploadDir: '%uploadDir%'
+            $uploadAbsoluteDir: '%uploadAbsoluteDir%'
             $locale: '%locale%'
             $databaseHealthHistoryDays: '%env(int:DATABASE_HEALTH_HISTORY_DAYS)%'
             $databaseLogLoginHistoryDays: '%env(int:DATABASE_LOG_LOGIN_HISTORY_DAYS)%'
@@ -109,6 +116,18 @@ services:
     App\General\Infrastructure\Service\ApiProxyService:
         arguments:
             $apiMediaBaseUrl: '%api_media_base_url%'
+    League\Flysystem\FilesystemOperator: '@default.storage'
+
+    App\Resume\Domain\EntityListener\:
+        resource: '../src/Resume/Domain/EntityListener'
+        tags: [ 'doctrine.orm.entity_listener' ]
+
+    App\Resume\Transport\Form\Type\IconChoiceType:
+        class: App\Resume\Transport\Form\Type\IconChoiceType
+        # Symfony has already a container parameter to the kernel root directory.
+        arguments: [ '%kernel.project_dir%' ]
+        tags:
+            - { name: form.type }
 when@dev:
     services:
         _defaults:

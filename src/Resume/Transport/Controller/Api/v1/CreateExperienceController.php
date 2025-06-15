@@ -5,16 +5,10 @@ declare(strict_types=1);
 namespace App\Resume\Transport\Controller\Api\v1;
 
 use App\General\Domain\Utils\JSON;
-use App\Notification\Application\Service\NotificationService;
-use App\Notification\Domain\Entity\Notification;
-use App\Resume\Domain\Entity\Experience;
-use App\User\Domain\Entity\User;
+use App\General\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
-use OpenApi\Attributes\JsonContent;
-use OpenApi\Attributes\Property;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,8 +28,7 @@ class CreateExperienceController extends AbstractController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly NotificationService $notificationService
+        private readonly EntityManagerInterface $entityManager
     ) {
     }
 
@@ -49,61 +42,13 @@ class CreateExperienceController extends AbstractController
         methods: [Request::METHOD_POST],
     )]
     #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
-    #[OA\Response(
-        response: 200,
-        description: 'User profile data',
-        content: new JsonContent(
-            ref: new Model(
-                type: Experience::class,
-                groups: [Experience::SET_USER_EXPERIENCE],
-            ),
-            type: 'object',
-        ),
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Invalid token (not found or expired)',
-        content: new JsonContent(
-            properties: [
-                new Property(property: 'code', description: 'Error code', type: 'integer'),
-                new Property(property: 'message', description: 'Error description', type: 'string'),
-            ],
-            type: 'object',
-            example: [
-                'code' => 401,
-                'message' => 'JWT Token not found',
-            ],
-        ),
-    )]
-    #[OA\Response(
-        response: 403,
-        description: 'Access denied',
-        content: new JsonContent(
-            properties: [
-                new Property(property: 'code', description: 'Error code', type: 'integer'),
-                new Property(property: 'message', description: 'Error description', type: 'string'),
-            ],
-            type: 'object',
-            example: [
-                'code' => 403,
-                'message' => 'Access denied',
-            ],
-        ),
-    )]
     public function __invoke(
-        User $loggedInUser,
+        SymfonyUser $loggedInUser,
         Request $request,
         HubInterface $hub
     ): JsonResponse {
         $data = $request->request->get('data');
-        $notification = new Notification();
-        $notification->setUser($loggedInUser);
-        $notification->setMessage($data);
 
-        $this->entityManager->persist($notification);
-        $this->entityManager->flush();
-
-        $this->notificationService->sendNotification($loggedInUser, $notification);
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(

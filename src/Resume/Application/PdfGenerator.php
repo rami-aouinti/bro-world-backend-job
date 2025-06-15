@@ -33,7 +33,7 @@ class PdfGenerator
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isPhpEnabled', true);
         $options->set('isRemoteEnabled', true);
-        $options->set('chroot', realpath(__DIR__.'/../../../public'));
+        $options->set('chroot', dirname(dirname(dirname(__DIR__))) . '/public');
         $this->dompdf = new Dompdf($options);
         $this->filesystem = new Filesystem();
         $this->uploadDir = __DIR__.'/../../../public/resume/pdf';

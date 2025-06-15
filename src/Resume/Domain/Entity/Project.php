@@ -26,7 +26,6 @@ class Project
 {
     final public const string SET_USER_PROJECT = 'set.UserProject';
 
-    use Blameable;
     use Timestampable;
     use Uuid;
 
