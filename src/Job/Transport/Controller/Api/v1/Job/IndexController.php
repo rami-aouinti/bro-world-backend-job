@@ -1,0 +1,88 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Job\Transport\Controller\Api\v1\Job;
+
+use App\General\Domain\Utils\JSON;
+use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Infrastructure\Repository\JobRepository;
+use JsonException;
+use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Serializer\SerializerInterface;
+
+/**
+ * @package App\Job
+ */
+#[AsController]
+#[OA\Tag(name: 'Job')]
+class IndexController
+{
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        private readonly JobRepository $jobRepository
+    ) {
+    }
+
+    /**
+     * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
+     *
+     * @throws JsonException
+     */
+    #[Route(
+        path: '/v1/job',
+        methods: [Request::METHOD_GET],
+    )]
+    #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
+    public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
+    {
+        $qb = $this->jobRepository->createQueryBuilder('j');
+
+        $title = $request->query->get('title');
+        if ($title !== null) {
+            $qb->andWhere('j.title = :title')
+                ->setParameter('title', $title);
+        }
+
+        $companyName = $request->query->get('company');
+        if ($companyName !== null) {
+            $qb->join('j.company', 'c')
+                ->andWhere('c.name = :companyName')
+                ->setParameter('companyName', $companyName);
+        }
+
+        $location = $request->query->get('location');
+        if ($location !== null) {
+            $qb->join('j.company', 'c')
+                ->andWhere('c.location = :location')
+                ->setParameter('location', $location);
+        }
+
+        $jobs = $qb->getQuery()->getResult();
+
+        $response = [];
+        foreach ($jobs as $job) {
+            $response[] = $job->toArray();
+        }
+
+        /** @var array<string, string|array<string, string>> $output */
+        $output = JSON::decode(
+            $this->serializer->serialize(
+                $response,
+                'json',
+                [
+                    'groups' => 'Job',
+                ]
+            ),
+            true,
+        );
+
+        return new JsonResponse($output);
+    }
+}

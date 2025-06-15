@@ -35,24 +35,44 @@ class Job
     #[Assert\NotBlank]
     #[Assert\Length( min: 5, max: 255)]
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'Job',
+        'Job.title',
+    ])]
     private ?string $title = null;
 
     #[Assert\NotBlank]
     #[Assert\Length( min: 5)]
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups([
+        'Job',
+        'Job.description',
+    ])]
     private ?string $description = null;
 
     #[Assert\NotBlank]
     #[Assert\Length( min: 5)]
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups([
+        'Job',
+        'Job.requiredSkills',
+    ])]
     private ?string $requiredSkills = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'Job',
+        'Job.experience',
+    ])]
     private ?string $experience = null;
 
     #[Assert\NotBlank]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups([
+        'Job',
+        'Job.company',
+    ])]
     private ?Company $company = null;
 
     /**
