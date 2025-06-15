@@ -39,7 +39,6 @@ class IndexController
         path: '/v1/job',
         methods: [Request::METHOD_GET],
     )]
-    #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $qb = $this->jobRepository->createQueryBuilder('j');
