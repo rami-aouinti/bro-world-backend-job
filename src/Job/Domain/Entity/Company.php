@@ -5,6 +5,8 @@ namespace App\Job\Domain\Entity;
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
 use App\Job\Infrastructure\Repository\CompanyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -78,6 +80,26 @@ class Company
     ])]
     private ?string $contactEmail = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['Company', 'Job', 'Application'])]
+    private ?string $logo = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['Company', 'Job', 'Application'])]
+    private ?string $siteUrl = null;
+
+    /**
+     * @var Collection<int, CompanyMedia>
+     */
+    #[ORM\OneToMany(
+        mappedBy: 'company',
+        targetEntity: CompanyMedia::class,
+        cascade: ['persist'],
+        orphanRemoval: true)
+    ]
+    #[Groups(['Company', 'Job', 'Application'])]
+    private Collection $medias;
+
     #[ORM\Column(type: 'uuid')]
     #[Groups([
         'Job',
@@ -91,6 +113,7 @@ class Company
     public function __construct()
     {
         $this->id = $this->createUuid();
+        $this->medias = new ArrayCollection();
     }
 
     public function getId(): string
@@ -146,28 +169,34 @@ class Company
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getLogo(): ?string
     {
-        return $this->createdAt;
+        return $this->logo;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setLogo(?string $logo): void
     {
-        $this->createdAt = $createdAt;
-
-        return $this;
+        $this->logo = $logo;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getSiteUrl(): ?string
     {
-        return $this->updatedAt;
+        return $this->siteUrl;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
+    public function setSiteUrl(?string $siteUrl): void
     {
-        $this->updatedAt = $updatedAt;
+        $this->siteUrl = $siteUrl;
+    }
 
-        return $this;
+    public function getMedias(): Collection
+    {
+        return $this->medias;
+    }
+
+    public function setMedias(Collection $medias): void
+    {
+        $this->medias = $medias;
     }
 
     public function getUser(): UuidInterface
@@ -188,6 +217,9 @@ class Company
             "description"=>$this->getDescription(),
             "location"=>$this->getLocation(),
             "contactEmail"=>$this->getContactEmail(),
+            "logo"=>$this->getLogo(),
+            "siteUrl"=>$this->getSiteUrl(),
+            "medias"=>$this->getMedias()->map(fn(CompanyMedia $media) => $media->toArray())->toArray(),
             "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()

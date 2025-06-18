@@ -62,6 +62,15 @@ class Applicant
     ])]
     private ?string $jobPreferences = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    #[Groups([
+        'Applicant',
+        'Applicant.resume',
+        'Application',
+    ])]
+    private ?string $resume = null;
+
     #[ORM\Column(type: 'uuid')]
     #[Groups([
         'Job',
@@ -118,6 +127,16 @@ class Applicant
         return $this;
     }
 
+    public function getResume(): ?string
+    {
+        return $this->resume;
+    }
+
+    public function setResume(?string $resume): void
+    {
+        $this->resume = $resume;
+    }
+
     public function getUser(): UuidInterface
     {
         return $this->user;
@@ -128,30 +147,6 @@ class Applicant
         $this->user = $user;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
     public function toArray(): array
     {
         return [
@@ -159,6 +154,7 @@ class Applicant
             "name"=>$this->getName(),
             "contactEmail"=>$this->getContactEmail(),
             "jobPreferences"=>$this->getJobPreferences(),
+            "resume"=>$this->getResume(),
             "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()

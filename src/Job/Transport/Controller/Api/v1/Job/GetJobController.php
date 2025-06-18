@@ -38,7 +38,6 @@ readonly class GetJobController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request, Job $job): JsonResponse
     {
-
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(

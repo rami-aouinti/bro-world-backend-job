@@ -71,6 +71,30 @@ class Job
     ])]
     private ?string $experience = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['Job', 'Application'])]
+    private ?string $workType = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['Job', 'Application'])]
+    private ?string $workLocation = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['Job', 'Application'])]
+    private ?string $salaryRange = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['Job', 'Application'])]
+    private ?string $contractType = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['Job', 'Application'])]
+    private ?string $requirements = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['Job', 'Application'])]
+    private ?string $benefits = null;
+
     #[Assert\NotBlank]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -154,6 +178,66 @@ class Job
         return $this;
     }
 
+    public function getWorkType(): ?string
+    {
+        return $this->workType;
+    }
+
+    public function setWorkType(?string $workType): void
+    {
+        $this->workType = $workType;
+    }
+
+    public function getWorkLocation(): ?string
+    {
+        return $this->workLocation;
+    }
+
+    public function setWorkLocation(?string $workLocation): void
+    {
+        $this->workLocation = $workLocation;
+    }
+
+    public function getSalaryRange(): ?string
+    {
+        return $this->salaryRange;
+    }
+
+    public function setSalaryRange(?string $salaryRange): void
+    {
+        $this->salaryRange = $salaryRange;
+    }
+
+    public function getContractType(): ?string
+    {
+        return $this->contractType;
+    }
+
+    public function setContractType(?string $contractType): void
+    {
+        $this->contractType = $contractType;
+    }
+
+    public function getRequirements(): ?string
+    {
+        return $this->requirements;
+    }
+
+    public function setRequirements(?string $requirements): void
+    {
+        $this->requirements = $requirements;
+    }
+
+    public function getBenefits(): ?string
+    {
+        return $this->benefits;
+    }
+
+    public function setBenefits(?string $benefits): void
+    {
+        $this->benefits = $benefits;
+    }
+
     public function getCompany(): ?Company
     {
         return $this->company;
@@ -184,6 +268,12 @@ class Job
             "description"=>$this->getDescription(),
             "requiredSkills"=>$this->getRequiredSkills(),
             "experience"=>$this->getExperience(),
+            "workType"=>$this->getWorkType(),
+            "workLocation"=>$this->getWorkLocation(),
+            "salaryRange"=>$this->getSalaryRange(),
+            "contractType"=>$this->getContractType(),
+            "requirements"=>$this->getRequirements(),
+            "benefits"=>$this->getBenefits(),
             "company"=>$this->getCompany()?->toArray(),
             "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
