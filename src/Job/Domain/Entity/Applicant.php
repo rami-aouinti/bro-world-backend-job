@@ -29,6 +29,7 @@ class Applicant
     #[Groups([
         'Applicant',
         'Applicant.id',
+        'Application',
     ])]
     private UuidInterface $id;
 
@@ -38,6 +39,7 @@ class Applicant
     #[Groups([
         'Applicant',
         'Applicant.name',
+        'Application',
     ])]
     private ?string $name = null;
 
@@ -48,6 +50,7 @@ class Applicant
     #[Groups([
         'Applicant',
         'Applicant.contactEmail',
+        'Application',
     ])]
     private ?string $contactEmail = null;
 
@@ -55,6 +58,7 @@ class Applicant
     #[Groups([
         'Applicant',
         'Applicant.jobPreferences',
+        'Application',
     ])]
     private ?string $jobPreferences = null;
 

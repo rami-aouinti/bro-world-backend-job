@@ -29,6 +29,7 @@ class Job
     #[Groups([
         'Job',
         'Job.id',
+        'Application',
     ])]
     private UuidInterface $id;
 
@@ -38,6 +39,7 @@ class Job
     #[Groups([
         'Job',
         'Job.title',
+        'Application',
     ])]
     private ?string $title = null;
 
@@ -47,6 +49,7 @@ class Job
     #[Groups([
         'Job',
         'Job.description',
+        'Application',
     ])]
     private ?string $description = null;
 
@@ -56,6 +59,7 @@ class Job
     #[Groups([
         'Job',
         'Job.requiredSkills',
+        'Application',
     ])]
     private ?string $requiredSkills = null;
 
@@ -63,6 +67,7 @@ class Job
     #[Groups([
         'Job',
         'Job.experience',
+        'Application',
     ])]
     private ?string $experience = null;
 
@@ -72,6 +77,7 @@ class Job
     #[Groups([
         'Job',
         'Job.company',
+        'Application',
     ])]
     private ?Company $company = null;
 

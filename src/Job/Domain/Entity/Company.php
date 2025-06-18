@@ -30,6 +30,7 @@ class Company
         'Company',
         'Job',
         'Company.id',
+        'Application',
     ])]
     private UuidInterface $id;
 
@@ -41,6 +42,7 @@ class Company
         'Company',
         'Job',
         'Company.name',
+        'Application',
     ])]
     private ?string $name = null;
 
@@ -49,6 +51,7 @@ class Company
         'Company',
         'Job',
         'Company.description',
+        'Application',
     ])]
     private ?string $description = null;
 
@@ -58,6 +61,7 @@ class Company
     #[Groups([
         'Company',
         'Job',
+        'Application',
         'Company.location',
     ])]
     private ?string $location = null;
@@ -70,6 +74,7 @@ class Company
         'Company',
         'Job',
         'Company.contactEmail',
+        'Application',
     ])]
     private ?string $contactEmail = null;
 
