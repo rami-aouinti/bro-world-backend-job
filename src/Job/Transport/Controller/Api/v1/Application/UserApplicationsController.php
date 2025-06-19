@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Applicant')]
-readonly class IndexController
+readonly class UserApplicationsController
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -38,29 +38,22 @@ readonly class IndexController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/application',
+        path: '/v1/profile/application',
         methods: [Request::METHOD_GET],
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
-        $users = $this->userProxy->getUsers();
 
-        $usersById = [];
-        foreach ($users as $user) {
-            $usersById[$user['id']] = $user;
-        }
-
-        $applicants = $this->jobApplicationRepository->findAll();
-        $response = [];
-        foreach ($applicants as $key => $applicant){
-            $response[$key] = $applicant->toArray();
-            $response[$key]['user'] = $usersById[$applicant->getApplicant()?->getUser()->toString()] ?? null;
-        }
+        $applicants = $this->jobApplicationRepository->findBy(
+            [
+                'user' => $loggedInUser->getUserIdentifier(),
+            ]
+        );
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                $response,
+                $applicants,
                 'json',
                 [
                     'groups' => 'Application',
