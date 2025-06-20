@@ -57,7 +57,17 @@ class Job
     ])]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::JSON)]
+    #[Assert\NotBlank]
+    #[Assert\Length( min: 5)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups([
+        'Job',
+        'Job.work',
+        'Application',
+    ])]
+    private ?string $work = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['Job', 'Job.requiredSkills', 'Application'])]
     private array $requiredSkills = [];
 
@@ -81,9 +91,9 @@ class Job
     #[Groups(['Job', 'Application'])]
     private ?ContractType $contractType = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['Job', 'Application'])]
-    private ?string $requirements = null;
+    private ?array $requirements = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['Job', 'Application'])]
@@ -144,6 +154,16 @@ class Job
         $this->description = $description;
 
         return $this;
+    }
+
+    public function getWork(): ?string
+    {
+        return $this->work;
+    }
+
+    public function setWork(?string $work): void
+    {
+        $this->work = $work;
     }
 
     public function getLanguages(): Collection
@@ -242,12 +262,12 @@ class Job
         return $this;
     }
 
-    public function getRequirements(): ?string
+    public function getRequirements(): ?array
     {
         return $this->requirements;
     }
 
-    public function setRequirements(?string $requirements): void
+    public function setRequirements(?array $requirements): void
     {
         $this->requirements = $requirements;
     }
@@ -290,6 +310,7 @@ class Job
             "id"=>$this->getId(),
             "title"=>$this->getTitle(),
             "description"=>$this->getDescription(),
+            "work"=>$this->getWork(),
             "requiredSkills"=>$this->getRequiredSkills(),
             "experience"=>$this->getExperience(),
             "workType"=>$this->getWorkType(),

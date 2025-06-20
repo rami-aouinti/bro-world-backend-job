@@ -58,6 +58,7 @@ class CreateJobController
         $job->setDescription($jsonParams['description']);
         $job->setRequiredSkills($jsonParams['requiredSkills']);
         $job->setWorkLocation($jsonParams['workLocation'] ?? '');
+        $job->setWork($jsonParams['work'] ?? '');
         $job->setSalaryRange($jsonParams['salaryRange'] ?? '');
         if (WorkType::tryFrom($jsonParams['workType'])) {
             $job->setWorkType(WorkType::from($jsonParams['workType']));
@@ -67,7 +68,7 @@ class CreateJobController
             $job->setContractType(ContractType::from($jsonParams['contractType']));
         }
 
-        $job->setRequirements($jsonParams['requirements'] ?? '');
+        $job->setRequirements($jsonParams['requirements'] ?? []);
         $job->setBenefits($jsonParams['benefits'] ?? '');
         if(isset($jsonParams['languages'] )) {
             foreach ($jsonParams['languages'] as $languageForm) {
