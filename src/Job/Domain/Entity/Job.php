@@ -100,7 +100,7 @@ class Job
     private UuidInterface $user;
 
     #[ORM\OneToMany(mappedBy: 'job', targetEntity: Language::class, cascade: ['persist', 'remove'])]
-    #[Groups(['Job'])]
+    #[Groups(['Job', 'Job.languages', 'Application'])]
     private Collection $languages;
 
     /**

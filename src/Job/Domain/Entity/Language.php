@@ -12,15 +12,15 @@ class Language
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(['Job'])]
+    #[Groups(['Job', 'Job.id'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['Job'])]
+    #[Groups(['Job', 'Job.name'])]
     private string $name;
 
     #[ORM\Column(enumType: LanguageLevel::class)]
-    #[Groups(['Job'])]
+    #[Groups(['Job', 'Job.level'])]
     private LanguageLevel $level;
 
     #[ORM\ManyToOne(inversedBy: 'languages')]
