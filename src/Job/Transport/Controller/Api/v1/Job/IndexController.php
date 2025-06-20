@@ -45,7 +45,7 @@ readonly class IndexController
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $page = max((int)$request->query->get('page', 1), 1);
-        $limit = max((int)$request->query->get('limit', 5), 1);
+        $limit = max((int)$request->query->get('limit', 20), 1);
         $offset = ($page - 1) * $limit;
 
         // Sinon, fallback sur DQL classique
@@ -121,7 +121,7 @@ readonly class IndexController
             'data' => $output,
             'page' => $page,
             'limit' => $limit,
-            'count' => count($this->jobRepository->findAll()),
+            'count' => count($output),
         ]);
     }
 }
