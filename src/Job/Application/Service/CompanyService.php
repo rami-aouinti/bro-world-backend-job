@@ -23,9 +23,8 @@ class CompanyService
      */
     public function uploadLogo(Request $request): string
     {
-        $files = $request->files->get('file');
+        $file = $request->files->get('file');
 
-        $file = $files[0];
         if (!$file) {
             return '';
         }
