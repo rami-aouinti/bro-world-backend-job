@@ -121,7 +121,7 @@ readonly class IndexController
             'data' => $output,
             'page' => $page,
             'limit' => $limit,
-            'count' => count($output),
+            'count' => count($this->jobRepository->findAll()),
         ]);
     }
 }
