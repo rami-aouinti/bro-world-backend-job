@@ -53,6 +53,12 @@ class CreateJobController
         $job->setTitle($jsonParams['title']);
         $job->setDescription($jsonParams['description']);
         $job->setRequiredSkills($jsonParams['requiredSkills']);
+        $job->setWorkType($jsonParams['workType'] ?? '');
+        $job->setWorkLocation($jsonParams['workLocation'] ?? '');
+        $job->setSalaryRange($jsonParams['salaryRange'] ?? '');
+        $job->setContractType($jsonParams['contractType'] ?? '');
+        $job->setRequirements($jsonParams['requirements'] ?? '');
+        $job->setBenefits($jsonParams['benefits'] ?? '');
         $job->setCompany($company);
         $job->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
         $job->setExperience($jsonParams['experience']);
