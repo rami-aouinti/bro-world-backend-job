@@ -9,6 +9,7 @@ use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Domain\Entity\Job;
 use App\Job\Domain\Entity\Language;
 use App\Job\Domain\Enum\ContractType;
+use App\Job\Domain\Enum\LanguageLevel;
 use App\Job\Domain\Enum\WorkType;
 use App\Job\Infrastructure\Repository\CompanyRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
@@ -72,7 +73,9 @@ class CreateJobController
             foreach ($jsonParams['languages'] as $languageForm) {
                 $language = new Language();
                 $language->setName($languageForm['name']);
-                $language->setLevel($languageForm['level']);
+                if (LanguageLevel::tryFrom($languageForm['level'])) {
+                    $language->setLevel(LanguageLevel::from($languageForm['level']));
+                }
                 $job->addLanguage($language);
             }
         }
