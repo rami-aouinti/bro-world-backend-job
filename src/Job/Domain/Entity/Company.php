@@ -81,11 +81,11 @@ class Company
     private ?string $contactEmail = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['Company', 'Job', 'Application'])]
+    #[Groups(['Company', 'Job', 'Company.logo', 'Application'])]
     private ?string $logo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['Company', 'Job', 'Application'])]
+    #[Groups(['Company', 'Job','Company.siteUrl',  'Application'])]
     private ?string $siteUrl = null;
 
     /**
