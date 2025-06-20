@@ -8,6 +8,8 @@ use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Domain\Entity\Job;
 use App\Job\Domain\Entity\Language;
+use App\Job\Domain\Enum\ContractType;
+use App\Job\Domain\Enum\WorkType;
 use App\Job\Infrastructure\Repository\CompanyRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
 use JsonException;
@@ -54,10 +56,16 @@ class CreateJobController
         $job->setTitle($jsonParams['title']);
         $job->setDescription($jsonParams['description']);
         $job->setRequiredSkills($jsonParams['requiredSkills']);
-        $job->setWorkType($jsonParams['workType'] ?? '');
         $job->setWorkLocation($jsonParams['workLocation'] ?? '');
         $job->setSalaryRange($jsonParams['salaryRange'] ?? '');
-        $job->setContractType($jsonParams['contractType'] ?? '');
+        if (WorkType::tryFrom($jsonParams['workType'])) {
+            $job->setWorkType(WorkType::from($jsonParams['workType']));
+        }
+
+        if (ContractType::tryFrom($jsonParams['contractType'])) {
+            $job->setContractType(ContractType::from($jsonParams['contractType']));
+        }
+
         $job->setRequirements($jsonParams['requirements'] ?? '');
         $job->setBenefits($jsonParams['benefits'] ?? '');
         if(isset($jsonParams['languages'] )) {

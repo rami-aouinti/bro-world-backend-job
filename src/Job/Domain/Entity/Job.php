@@ -203,7 +203,7 @@ class Job
         return $this->workType;
     }
 
-    public function setWorkType(?string $workType): void
+    public function setWorkType(?WorkType $workType): void
     {
         $this->workType = $workType;
     }
@@ -233,7 +233,7 @@ class Job
         return $this->contractType;
     }
 
-    public function setContractType(?string $contractType): void
+    public function setContractType(?ContractType $contractType): void
     {
         $this->contractType = $contractType;
     }
