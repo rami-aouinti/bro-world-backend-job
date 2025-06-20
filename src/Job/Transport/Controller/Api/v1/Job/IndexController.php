@@ -8,6 +8,7 @@ use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\JobRepository;
+use Doctrine\DBAL\Connection;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,9 +17,6 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @package App\Job
- */
 #[AsController]
 #[OA\Tag(name: 'Job')]
 readonly class IndexController
@@ -26,21 +24,45 @@ readonly class IndexController
     public function __construct(
         private SerializerInterface $serializer,
         private JobRepository       $jobRepository,
-        private UserProxy           $userProxy
+        private UserProxy           $userProxy,
+        private Connection          $connection, // injecté automatiquement
     ) {
     }
 
-    /**
-     * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
-     *
-     * @throws JsonException
-     */
-    #[Route(
-        path: '/v1/job',
-        methods: [Request::METHOD_GET],
-    )]
+    #[Route(path: '/v1/job', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
+        $skills = $request->query->all('skills');
+        $page = max((int)$request->query->get('page', 1), 1);
+        $limit = max((int)$request->query->get('limit', 10), 1);
+        $offset = ($page - 1) * $limit;
+
+        if (!empty($skills)) {
+            // ⚠️ Requête SQL native si filtres par skills
+            $sql = 'SELECT * FROM job WHERE true';
+
+            $parameters = [];
+            foreach ($skills as $index => $skill) {
+                $sql .= " AND required_skills @> :skill$index";
+                $parameters["skill$index"] = json_encode([$skill]);
+            }
+
+            $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
+            $parameters['limit'] = $limit;
+            $parameters['offset'] = $offset;
+
+            $stmt = $this->connection->prepare($sql);
+            $results = $stmt->executeQuery($parameters)->fetchAllAssociative();
+
+            return new JsonResponse([
+                'data' => $results,
+                'page' => $page,
+                'limit' => $limit,
+                'count' => count($results),
+            ]);
+        }
+
+        // Sinon, fallback sur DQL classique
         $users = $this->userProxy->getUsers();
         $usersById = [];
         foreach ($users as $user) {
@@ -61,8 +83,8 @@ readonly class IndexController
         }
 
         if ($location = $request->query->get('location')) {
-            $qb->join('j.company', 'c2') // alias distinct
-            ->andWhere('c2.location LIKE :location')
+            $qb->join('j.company', 'c2')
+                ->andWhere('c2.location LIKE :location')
                 ->setParameter('location', "%$location%");
         }
 
@@ -73,36 +95,17 @@ readonly class IndexController
 
         $works = $request->query->all('works');
         if (!empty($works)) {
-            foreach ($works as $index => $work) {
-                $qb->andWhere('j.workType = :workType')
-                    ->setParameter('workType', $work);
-            }
+            $qb->andWhere('j.workType IN (:works)')
+                ->setParameter('works', $works);
         }
 
         $contracts = $request->query->all('contracts');
         if (!empty($contracts)) {
-            foreach ($contracts as $index => $contract) {
-                $qb->andWhere('j.contractType = :contractType')
-                    ->setParameter('contractType', $contract);
-            }
+            $qb->andWhere('j.contractType IN (:contracts)')
+                ->setParameter('contracts', $contracts);
         }
 
-        $skills = $request->query->all('skills');
-        if (!empty($skills)) {
-            foreach ($skills as $index => $skill) {
-                $qb->andWhere("j.requiredSkills @> :skill$index")
-                    ->setParameter("skill$index", json_encode([$skill]));
-            }
-        }
-
-        // Tri par date (nouveaux d'abord)
         $qb->orderBy('j.createdAt', 'DESC');
-
-        // Pagination
-        $page = max((int)$request->query->get('page', 1), 1);
-        $limit = max((int)$request->query->get('limit', 10), 1);
-        $offset = ($page - 1) * $limit;
-
         $qb->setFirstResult($offset)->setMaxResults($limit);
 
         $jobs = $qb->getQuery()->getResult();
@@ -114,14 +117,10 @@ readonly class IndexController
         }
 
         $output = JSON::decode(
-            $this->serializer->serialize(
-                $response,
-                'json',
-                [
-                    'groups' => 'Job',
-                ]
-            ),
-            true,
+            $this->serializer->serialize($response, 'json', [
+                'groups' => 'Job',
+            ]),
+            true
         );
 
         return new JsonResponse([
