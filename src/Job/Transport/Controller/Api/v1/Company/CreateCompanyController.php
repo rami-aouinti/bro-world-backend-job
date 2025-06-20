@@ -54,7 +54,7 @@ class CreateCompanyController
         $company->setContactEmail($jsonParams['contactEmail']);
         $company->setLogo($jsonParams['logo'] ?? '');
         $company->setSiteUrl($jsonParams['siteUrl'] ?? '');
-        $company->setMedias($jsonParams['medias'] ?? []);
+        //$company->setMedias($jsonParams['medias'] ?? []);
         $company->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
         $violations = $this->validator->validate($company);
         $this->companyRepository->save($company, true);
