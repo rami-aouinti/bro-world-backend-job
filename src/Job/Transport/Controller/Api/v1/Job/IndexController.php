@@ -42,7 +42,6 @@ readonly class IndexController
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $users = $this->userProxy->getUsers();
-
         $usersById = [];
         foreach ($users as $user) {
             $usersById[$user['id']] = $user;
@@ -50,25 +49,58 @@ readonly class IndexController
 
         $qb = $this->jobRepository->createQueryBuilder('j');
 
-        $title = $request->query->get('title');
-        if ($title !== null) {
-            $qb->andWhere('j.title = :title')
-                ->setParameter('title', $title);
+        // Filtres simples
+        if ($title = $request->query->get('title')) {
+            $qb->andWhere('j.title LIKE :title')
+                ->setParameter('title', "%$title%");
         }
 
-        $companyName = $request->query->get('company');
-        if ($companyName !== null) {
+        if ($companyName = $request->query->get('company')) {
             $qb->join('j.company', 'c')
-                ->andWhere('c.name = :companyName')
-                ->setParameter('companyName', $companyName);
+                ->andWhere('c.name LIKE :companyName')
+                ->setParameter('companyName', "%$companyName%");
         }
 
-        $location = $request->query->get('location');
-        if ($location !== null) {
-            $qb->join('j.company', 'c')
-                ->andWhere('c.location = :location')
-                ->setParameter('location', $location);
+        if ($location = $request->query->get('location')) {
+            $qb->join('j.company', 'c2') // alias distinct
+            ->andWhere('c2.location LIKE :location')
+                ->setParameter('location', "%$location%");
         }
+
+        if ($experience = $request->query->get('experience')) {
+            $qb->andWhere('j.experience = :experience')
+                ->setParameter('experience', $experience);
+        }
+
+        if ($salaryMin = $request->query->get('salaryMin')) {
+            $qb->andWhere('CAST(j.salaryRange AS int) >= :salaryMin')
+                ->setParameter('salaryMin', $salaryMin);
+        }
+
+        if ($salaryMax = $request->query->get('salaryMax')) {
+            $qb->andWhere('CAST(j.salaryRange AS int) <= :salaryMax')
+                ->setParameter('salaryMax', $salaryMax);
+        }
+
+        if ($contractType = $request->query->get('contractType')) {
+            $qb->andWhere('j.contractType = :contractType')
+                ->setParameter('contractType', $contractType);
+        }
+
+        if ($workType = $request->query->get('workType')) {
+            $qb->andWhere('j.workType = :workType')
+                ->setParameter('workType', $workType);
+        }
+
+        // Tri par date (nouveaux d'abord)
+        $qb->orderBy('j.createdAt', 'DESC');
+
+        // Pagination
+        $page = max((int)$request->query->get('page', 1), 1);
+        $limit = max((int)$request->query->get('limit', 10), 1);
+        $offset = ($page - 1) * $limit;
+
+        $qb->setFirstResult($offset)->setMaxResults($limit);
 
         $jobs = $qb->getQuery()->getResult();
 
@@ -78,7 +110,6 @@ readonly class IndexController
             $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
         }
 
-        /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
                 $response,
@@ -90,6 +121,11 @@ readonly class IndexController
             true,
         );
 
-        return new JsonResponse($output);
+        return new JsonResponse([
+            'data' => $output,
+            'page' => $page,
+            'limit' => $limit,
+            'count' => count($output),
+        ]);
     }
 }
