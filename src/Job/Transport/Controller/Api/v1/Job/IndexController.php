@@ -90,8 +90,8 @@ readonly class IndexController
         $skills = $request->query->all('skills');
         if (!empty($skills)) {
             foreach ($skills as $index => $skill) {
-                $qb->andWhere("JSON_CONTAINS(j.requiredSkills, :skill$index) = 1")
-                    ->setParameter("skill$index", json_encode($skill));
+                $qb->andWhere("j.requiredSkills @> :skill$index")
+                    ->setParameter("skill$index", json_encode([$skill]));
             }
         }
 
