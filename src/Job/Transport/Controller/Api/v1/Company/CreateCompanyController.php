@@ -54,8 +54,11 @@ readonly class CreateCompanyController
         $company->setDescription($jsonParams['description']);
         $company->setLocation($jsonParams['location']);
         $company->setContactEmail($jsonParams['contactEmail']);
-        $logo = $this->companyService->uploadLogo($request);
-        $company->setLogo($logo);
+        if($request->files->has('file')) {
+            $logo = $this->companyService->uploadLogo($request);
+            $company->setLogo($logo);
+        }
+
         $company->setSiteUrl($jsonParams['siteUrl'] ?? '');
         //$company->setMedias($jsonParams['medias'] ?? []);
         $company->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
