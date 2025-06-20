@@ -74,6 +74,13 @@ readonly class IndexController
             $parameters['offset'] = $offset;
 
             $stmt = $this->connection->prepare($sql);
+
+            foreach ($parameters as $key => $value) {
+                $type = str_starts_with($key, 'skill') ? \PDO::PARAM_STR : \PDO::PARAM_INT;
+                $stmt->bindValue($key, $value, $type);
+            }
+
+            $stmt->execute();
             $results = $stmt->executeQuery($parameters)->fetchAllAssociative();
 
             return new JsonResponse([
