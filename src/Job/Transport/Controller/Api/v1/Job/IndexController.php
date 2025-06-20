@@ -9,7 +9,6 @@ use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\JobRepository;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,11 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 #[AsController]
 #[OA\Tag(name: 'Job')]
@@ -35,15 +29,6 @@ readonly class IndexController
     ) {
     }
 
-    /**
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
-     * @throws JsonException
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws Exception
-     */
     #[Route(path: '/v1/job', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
@@ -59,38 +44,6 @@ readonly class IndexController
         }
 
         $qb = $this->jobRepository->createQueryBuilder('j');
-        $skills = $request->query->all('skills');
-        if (!empty($skills)) {
-            $sql = 'SELECT * FROM job WHERE 1=1';
-            $parameters = [];
-
-            foreach ($skills as $index => $skill) {
-                $sql .= " AND JSON_CONTAINS(required_skills, :skill$index)";
-                $parameters["skill$index"] = json_encode([$skill]);
-            }
-
-            $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
-            $parameters['limit'] = $limit;
-            $parameters['offset'] = $offset;
-
-            $stmt = $this->connection->prepare($sql);
-
-            foreach ($parameters as $key => $value) {
-                $type = str_starts_with($key, 'skill') ? \PDO::PARAM_STR : \PDO::PARAM_INT;
-                $stmt->bindValue($key, $value, $type);
-            }
-
-            $stmt->execute();
-            $results = $stmt->executeQuery($parameters)->fetchAllAssociative();
-
-            return new JsonResponse([
-                'data' => $results,
-                'page' => $page,
-                'limit' => $limit,
-                'count' => count($results),
-            ]);
-        }
-
 
         if ($title = $request->query->get('title')) {
             $qb->andWhere('j.title LIKE :title')
@@ -124,6 +77,12 @@ readonly class IndexController
         if (!empty($contracts)) {
             $qb->andWhere('j.contractType IN (:contracts)')
                 ->setParameter('contracts', $contracts);
+        }
+
+        $skills = $request->query->all('skills');
+        if (!empty($skills)) {
+            $qb->andWhere('j.requiredSkills IN (:skills)')
+                ->setParameter('skills', $skills);
         }
 
         $qb->orderBy('j.createdAt', 'DESC');
