@@ -76,7 +76,8 @@ readonly class IndexController
 
         if ($location = $request->query->get('location')) {
             $qb->join('j.company', 'c2')
-                ->andWhere('c2.location LIKE :location')
+                ->andWhere('j.workLocation LIKE :location')
+                ->orWhere('c2.location LIKE :location')
                 ->setParameter('location', "%$location%");
         }
 
