@@ -50,16 +50,16 @@ readonly class CreateCompanyController
         $jsonParams = $request->request->all();
 
         $company = new Company();
-        $company->setName($jsonParams['name']);
-        $company->setDescription($jsonParams['description']);
-        $company->setLocation($jsonParams['location']);
-        $company->setContactEmail($jsonParams['contactEmail']);
+        $company->setName($request->request->get('name'));
+        $company->setDescription($request->request->get('description'));
+        $company->setLocation($request->request->get('location') ?? '');
+        $company->setContactEmail($request->request->get('contactEmail') ?? '');
         if($request->files->get('file')) {
             $logo = $this->companyService->uploadLogo($request);
             $company->setLogo($logo);
         }
 
-        $company->setSiteUrl($jsonParams['siteUrl'] ?? '');
+        $company->setSiteUrl($request->request->get('siteUrl') ?? '');
         //$company->setMedias($jsonParams['medias'] ?? []);
         $company->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
         $violations = $this->validator->validate($company);
