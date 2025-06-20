@@ -9,6 +9,7 @@ parameters:
     api_media_base_url: '%env(API_MEDIA_BASE_URL)%'
     uploads_directory: '%kernel.project_dir%/public/uploads'
     uploadAbsoluteDir: '%kernel.project_dir%/public/%uploadDir%'
+    logo_directory: '%kernel.project_dir%/public/uploads/companies/logo'
     uploadDir: 'uploads'
 services:
     # default configuration for services in *this* file
@@ -128,6 +129,9 @@ services:
         arguments: [ '%kernel.project_dir%' ]
         tags:
             - { name: form.type }
+    App\Job\Application\Service\CompanyService:
+        arguments:
+            $logoCompanyDirectory: '%logo_directory%'
 when@dev:
     services:
         _defaults:
