@@ -32,34 +32,9 @@ readonly class IndexController
     #[Route(path: '/v1/job', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
-        $skills = $request->query->all('skills');
         $page = max((int)$request->query->get('page', 1), 1);
         $limit = max((int)$request->query->get('limit', 10), 1);
         $offset = ($page - 1) * $limit;
-
-        if (!empty($skills)) {
-            $sql = 'SELECT * FROM job WHERE 1=1';
-            $parameters = [];
-
-            foreach ($skills as $index => $skill) {
-                $sql .= " AND JSON_CONTAINS(required_skills, :skill$index)";
-                $parameters["skill$index"] = json_encode([$skill]);
-            }
-
-            $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
-            $parameters['limit'] = $limit;
-            $parameters['offset'] = $offset;
-
-            $stmt = $this->connection->prepare($sql);
-            $results = $stmt->executeQuery($parameters)->fetchAllAssociative();
-
-            return new JsonResponse([
-                'data' => $results,
-                'page' => $page,
-                'limit' => $limit,
-                'count' => count($results),
-            ]);
-        }
 
         // Sinon, fallback sur DQL classique
         $users = $this->userProxy->getUsers();
@@ -102,6 +77,12 @@ readonly class IndexController
         if (!empty($contracts)) {
             $qb->andWhere('j.contractType IN (:contracts)')
                 ->setParameter('contracts', $contracts);
+        }
+
+        $skills = $request->query->all('skills');
+        if (!empty($skills)) {
+            $qb->andWhere('j.requiredSkills IN (:skills)')
+                ->setParameter('skills', $skills);
         }
 
         $qb->orderBy('j.createdAt', 'DESC');
