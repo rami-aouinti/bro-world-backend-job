@@ -16,6 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 #[AsController]
 #[OA\Tag(name: 'Job')]
@@ -29,6 +34,14 @@ readonly class IndexController
     ) {
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws JsonException
+     */
     #[Route(path: '/v1/job', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
@@ -47,6 +60,11 @@ readonly class IndexController
 
         if ($title = $request->query->get('title')) {
             $qb->andWhere('j.title LIKE :title')
+                ->setParameter('title', "%$title%");
+        }
+
+        if ($title = $request->query->get('title')) {
+            $qb->andWhere('j.description LIKE :title')
                 ->setParameter('title', "%$title%");
         }
 
