@@ -12,7 +12,7 @@ class CompanyService
 
     public function __construct(
         private string $logoCompanyDirectory,
-        private SluggerInterface $slugger
+        private readonly SluggerInterface $slugger
     ) {
     }
     /**

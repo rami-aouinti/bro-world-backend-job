@@ -6,6 +6,7 @@ namespace App\Job\Transport\Controller\Api\v1\Company;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Application\Service\CompanyService;
 use App\Job\Domain\Entity\Company;
 use App\Job\Domain\Entity\Job;
 use App\Job\Infrastructure\Repository\CompanyRepository;
@@ -25,12 +26,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Company')]
-class CreateCompanyController
+readonly class CreateCompanyController
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly CompanyRepository $companyRepository,
-        private readonly ValidatorInterface $validator
+        private SerializerInterface $serializer,
+        private CompanyRepository   $companyRepository,
+        private ValidatorInterface  $validator,
+        private CompanyService      $companyService
     ) {
     }
 
@@ -52,7 +54,8 @@ class CreateCompanyController
         $company->setDescription($jsonParams['description']);
         $company->setLocation($jsonParams['location']);
         $company->setContactEmail($jsonParams['contactEmail']);
-        $company->setLogo($jsonParams['logo'] ?? '');
+        $logo = $this->companyService->uploadLogo($request);
+        $company->setLogo($logo);
         $company->setSiteUrl($jsonParams['siteUrl'] ?? '');
         //$company->setMedias($jsonParams['medias'] ?? []);
         $company->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
