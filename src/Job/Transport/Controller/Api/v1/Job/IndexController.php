@@ -49,7 +49,6 @@ readonly class IndexController
 
         $qb = $this->jobRepository->createQueryBuilder('j');
 
-        // Filtres simples
         if ($title = $request->query->get('title')) {
             $qb->andWhere('j.title LIKE :title')
                 ->setParameter('title', "%$title%");
@@ -80,6 +79,14 @@ readonly class IndexController
         if ($workType = $request->query->get('workType')) {
             $qb->andWhere('j.workType = :workType')
                 ->setParameter('workType', $workType);
+        }
+
+        $skills = $request->query->all('skills');
+        if (!empty($skills)) {
+            foreach ($skills as $index => $skill) {
+                $qb->andWhere("JSON_CONTAINS(j.requiredSkills, :skill$index) = 1")
+                    ->setParameter("skill$index", json_encode($skill));
+            }
         }
 
         // Tri par date (nouveaux d'abord)
