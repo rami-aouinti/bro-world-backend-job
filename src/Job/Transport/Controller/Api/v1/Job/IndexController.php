@@ -71,14 +71,20 @@ readonly class IndexController
                 ->setParameter('experience', $experience);
         }
 
-        if ($contractType = $request->query->get('contractType')) {
-            $qb->andWhere('j.contractType = :contractType')
-                ->setParameter('contractType', $contractType);
+        $works = $request->query->all('works');
+        if (!empty($works)) {
+            foreach ($works as $index => $work) {
+                $qb->andWhere('j.workType = :workType')
+                    ->setParameter('workType', $work);
+            }
         }
 
-        if ($workType = $request->query->get('workType')) {
-            $qb->andWhere('j.workType = :workType')
-                ->setParameter('workType', $workType);
+        $contracts = $request->query->all('contracts');
+        if (!empty($contracts)) {
+            foreach ($contracts as $index => $contract) {
+                $qb->andWhere('j.contractType = :contractType')
+                    ->setParameter('contractType', $contract);
+            }
         }
 
         $skills = $request->query->all('skills');
