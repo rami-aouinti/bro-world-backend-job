@@ -15,17 +15,19 @@ class CompanyService
         private readonly SluggerInterface $slugger
     ) {
     }
+
     /**
      * @param Request $request
      *
-     * @return string|JsonResponse
+     * @return string
      */
-    public function uploadLogo(Request $request): string|JsonResponse
+    public function uploadLogo(Request $request): string
     {
-        $file = $request->files->get('file');
+        $files = $request->files->get('file');
 
+        $file = $files[0];
         if (!$file) {
-            return new JsonResponse(['error' => 'No file uploaded.'], 400);
+            return '';
         }
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
