@@ -7,6 +7,7 @@ namespace App\Job\Transport\Controller\Api\v1\Job;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Domain\Entity\Job;
+use App\Job\Domain\Entity\Language;
 use App\Job\Infrastructure\Repository\CompanyRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
 use JsonException;
@@ -59,6 +60,14 @@ class CreateJobController
         $job->setContractType($jsonParams['contractType'] ?? '');
         $job->setRequirements($jsonParams['requirements'] ?? '');
         $job->setBenefits($jsonParams['benefits'] ?? '');
+        if(isset($jsonParams['languages'] )) {
+            foreach ($jsonParams['languages'] as $languageForm) {
+                $language = new Language();
+                $language->setName($languageForm['name']);
+                $language->setLevel($languageForm['level']);
+                $job->addLanguage($language);
+            }
+        }
         $job->setCompany($company);
         $job->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
         $job->setExperience($jsonParams['experience']);

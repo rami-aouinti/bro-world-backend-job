@@ -4,7 +4,11 @@ namespace App\Job\Domain\Entity;
 
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
+use App\Job\Domain\Enum\ContractType;
+use App\Job\Domain\Enum\WorkType;
 use App\Job\Infrastructure\Repository\JobRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -53,27 +57,17 @@ class Job
     ])]
     private ?string $description = null;
 
-    #[Assert\NotBlank]
-    #[Assert\Length( min: 5)]
-    #[ORM\Column(type: Types::TEXT)]
-    #[Groups([
-        'Job',
-        'Job.requiredSkills',
-        'Application',
-    ])]
-    private ?string $requiredSkills = null;
+    #[ORM\Column(type: Types::JSON)]
+    #[Groups(['Job', 'Job.requiredSkills', 'Application'])]
+    private array $requiredSkills = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups([
-        'Job',
-        'Job.experience',
-        'Application',
-    ])]
+    #[Groups(['Job', 'Job.experience', 'Application'])]
     private ?string $experience = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
+    #[ORM\Column(nullable: true, enumType: WorkType::class)]
     #[Groups(['Job', 'Application'])]
-    private ?string $workType = null;
+    private ?WorkType $workType = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['Job', 'Application'])]
@@ -83,9 +77,9 @@ class Job
     #[Groups(['Job', 'Application'])]
     private ?string $salaryRange = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
+    #[ORM\Column(nullable: true, enumType: ContractType::class)]
     #[Groups(['Job', 'Application'])]
-    private ?string $contractType = null;
+    private ?ContractType $contractType = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['Job', 'Application'])]
@@ -98,19 +92,16 @@ class Job
     #[Assert\NotBlank]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([
-        'Job',
-        'Job.company',
-        'Application',
-    ])]
+    #[Groups(['Job', 'Job.company', 'Application'])]
     private ?Company $company = null;
 
     #[ORM\Column(type: 'uuid')]
-    #[Groups([
-        'Job',
-        'Job.user',
-    ])]
+    #[Groups(['Job', 'Job.user'])]
     private UuidInterface $user;
+
+    #[ORM\OneToMany(mappedBy: 'job', targetEntity: Language::class, cascade: ['persist', 'remove'])]
+    #[Groups(['Job'])]
+    private Collection $languages;
 
     /**
      * @throws Throwable
@@ -118,6 +109,7 @@ class Job
     public function __construct()
     {
         $this->id = $this->createUuid();
+        $this->languages = new ArrayCollection();
     }
 
     public function getId(): string
@@ -154,12 +146,40 @@ class Job
         return $this;
     }
 
-    public function getRequiredSkills(): ?string
+    public function getLanguages(): Collection
+    {
+        return $this->languages;
+    }
+
+    public function addLanguage(Language $language): self
+    {
+        if (!$this->languages->contains($language)) {
+            $this->languages[] = $language;
+            $language->setJob($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLanguage(Language $language): self
+    {
+        if ($this->languages->removeElement($language)) {
+            if ($language->getJob() === $this) {
+                $language->setJob(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    public function getRequiredSkills(): ?array
     {
         return $this->requiredSkills;
     }
 
-    public function setRequiredSkills(string $requiredSkills): self
+    public function setRequiredSkills(array $requiredSkills): self
     {
         $this->requiredSkills = $requiredSkills;
 
@@ -178,7 +198,7 @@ class Job
         return $this;
     }
 
-    public function getWorkType(): ?string
+    public function getWorkType(): WorkType
     {
         return $this->workType;
     }
@@ -208,7 +228,7 @@ class Job
         $this->salaryRange = $salaryRange;
     }
 
-    public function getContractType(): ?string
+    public function getContractType(): ContractType
     {
         return $this->contractType;
     }
