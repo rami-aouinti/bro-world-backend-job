@@ -38,12 +38,11 @@ readonly class IndexController
         $offset = ($page - 1) * $limit;
 
         if (!empty($skills)) {
-            // ⚠️ Requête SQL native si filtres par skills
-            $sql = 'SELECT * FROM job WHERE true';
-
+            $sql = 'SELECT * FROM job WHERE 1=1';
             $parameters = [];
+
             foreach ($skills as $index => $skill) {
-                $sql .= " AND required_skills @> :skill$index";
+                $sql .= " AND JSON_CONTAINS(required_skills, :skill$index)";
                 $parameters["skill$index"] = json_encode([$skill]);
             }
 
