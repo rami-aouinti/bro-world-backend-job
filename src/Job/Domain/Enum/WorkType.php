@@ -4,7 +4,7 @@ namespace App\Job\Domain\Enum;
 
 enum WorkType: string
 {
-    case REMOTE = 'remote';
-    case HYBRID = 'hybrid';
-    case ONSITE = 'onsite';
+    case REMOTE = 'Remote';
+    case HYBRID = 'Hybrid';
+    case ONSITE = 'Onsite';
 }

@@ -198,14 +198,16 @@ class Job
         return $this;
     }
 
-    public function getWorkType(): WorkType
+    public function getWorkType(): ?WorkType
     {
         return $this->workType;
     }
 
-    public function setWorkType(?WorkType $workType): void
+    public function setWorkType(?WorkType $workType): self
     {
         $this->workType = $workType;
+
+        return $this;
     }
 
     public function getWorkLocation(): ?string
@@ -228,14 +230,16 @@ class Job
         $this->salaryRange = $salaryRange;
     }
 
-    public function getContractType(): ContractType
+    public function getContractType(): ?ContractType
     {
         return $this->contractType;
     }
 
-    public function setContractType(?ContractType $contractType): void
+    public function setContractType(?ContractType $contractType): self
     {
         $this->contractType = $contractType;
+
+        return $this;
     }
 
     public function getRequirements(): ?string
