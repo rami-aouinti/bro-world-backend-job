@@ -46,7 +46,7 @@ readonly class IndexController
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $page = max((int)$request->query->get('page', 1), 1);
-        $limit = max((int)$request->query->get('limit', 10), 1);
+        $limit = max((int)$request->query->get('limit', 5), 1);
         $offset = ($page - 1) * $limit;
 
         // Sinon, fallback sur DQL classique
@@ -60,11 +60,7 @@ readonly class IndexController
 
         if ($title = $request->query->get('title')) {
             $qb->andWhere('j.title LIKE :title')
-                ->setParameter('title', "%$title%");
-        }
-
-        if ($title = $request->query->get('title')) {
-            $qb->andWhere('j.description LIKE :title')
+                ->orWhere('j.description LIKE :title')
                 ->setParameter('title', "%$title%");
         }
 
