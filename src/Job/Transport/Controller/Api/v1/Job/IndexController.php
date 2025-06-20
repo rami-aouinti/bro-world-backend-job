@@ -72,16 +72,6 @@ readonly class IndexController
                 ->setParameter('experience', $experience);
         }
 
-        if ($salaryMin = $request->query->get('salaryMin')) {
-            $qb->andWhere('CAST(j.salaryRange AS int) >= :salaryMin')
-                ->setParameter('salaryMin', $salaryMin);
-        }
-
-        if ($salaryMax = $request->query->get('salaryMax')) {
-            $qb->andWhere('CAST(j.salaryRange AS int) <= :salaryMax')
-                ->setParameter('salaryMax', $salaryMax);
-        }
-
         if ($contractType = $request->query->get('contractType')) {
             $qb->andWhere('j.contractType = :contractType')
                 ->setParameter('contractType', $contractType);
