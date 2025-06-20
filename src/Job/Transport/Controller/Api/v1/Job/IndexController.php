@@ -29,8 +29,7 @@ readonly class IndexController
     public function __construct(
         private SerializerInterface $serializer,
         private JobRepository       $jobRepository,
-        private UserProxy           $userProxy,
-        private Connection          $connection, // injecté automatiquement
+        private UserProxy           $userProxy
     ) {
     }
 
@@ -122,7 +121,7 @@ readonly class IndexController
             'data' => $output,
             'page' => $page,
             'limit' => $limit,
-            'count' => count($output),
+            'count' => count($this->jobRepository->findAll()),
         ]);
     }
 }
