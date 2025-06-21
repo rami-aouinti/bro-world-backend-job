@@ -55,8 +55,8 @@ readonly class CreateEducationController
         $education->setSchool($request->request->get('school'));
         $education->setGradeLevel((int)$request->request->get('gradeLevel'));
         $education->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
-        $education->setStartedAt(new DateTimeImmutable($request->request->get('startedAt')));
-        $education->setEndedAt(new DateTimeImmutable($request->request->get('endedAt')));
+        $education->setStartedAt(new DateTimeImmutable('now'));
+        $education->setEndedAt(new DateTimeImmutable('now'));
 
         $this->entityManager->persist($education);
         $this->entityManager->flush();
