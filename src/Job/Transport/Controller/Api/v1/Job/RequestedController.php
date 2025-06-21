@@ -45,7 +45,7 @@ readonly class RequestedController
      * @throws ClientExceptionInterface
      * @throws JsonException
      */
-    #[Route(path: '/v1/job/requests', methods: [Request::METHOD_GET])]
+    #[Route(path: '/v1/requests/job', methods: [Request::METHOD_GET])]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
         $page = max((int)$request->query->get('page', 1), 1);
