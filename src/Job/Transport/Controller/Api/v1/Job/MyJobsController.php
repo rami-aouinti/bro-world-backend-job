@@ -136,7 +136,7 @@ readonly class MyJobsController
 
         $output = JSON::decode(
             $this->serializer->serialize($response, 'json', [
-                'groups' => 'Job',
+                'groups' => 'Application',
             ]),
             true
         );
