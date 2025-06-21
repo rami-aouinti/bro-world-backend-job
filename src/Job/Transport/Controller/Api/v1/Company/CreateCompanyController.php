@@ -47,9 +47,7 @@ readonly class CreateCompanyController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
-        $jsonParams = $request->request->all();
-
-        $company = new Company();
+         $company = new Company();
         $company->setName($request->request->get('name'));
         $company->setDescription($request->request->get('description'));
         $company->setLocation($request->request->get('location') ?? '');

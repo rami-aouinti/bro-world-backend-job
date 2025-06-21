@@ -10,6 +10,7 @@ parameters:
     uploads_directory: '%kernel.project_dir%/public/uploads'
     uploadAbsoluteDir: '%kernel.project_dir%/public/%uploadDir%'
     logo_directory: '%kernel.project_dir%/public/uploads/companies/logo'
+    resume_directory: '%kernel.project_dir%/public/uploads/resume'
     uploadDir: 'uploads'
 services:
     # default configuration for services in *this* file
@@ -132,6 +133,9 @@ services:
     App\Job\Application\Service\CompanyService:
         arguments:
             $logoCompanyDirectory: '%logo_directory%'
+    App\Job\Application\Service\ResumeService:
+        arguments:
+            $resumeDirectory: '%resume_directory%'
 when@dev:
     services:
         _defaults:

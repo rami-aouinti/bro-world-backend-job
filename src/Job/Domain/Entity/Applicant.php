@@ -38,10 +38,20 @@ class Applicant
     #[ORM\Column(length: 255)]
     #[Groups([
         'Applicant',
-        'Applicant.name',
+        'Applicant.firstName',
         'Application',
     ])]
-    private ?string $name = null;
+    private ?string $firstName = null;
+
+    #[Assert\NotBlank]
+    #[Assert\Length( min: 5, max: 255)]
+    #[ORM\Column(length: 255)]
+    #[Groups([
+        'Applicant',
+        'Applicant.lastName',
+        'Application',
+    ])]
+    private ?string $lastName = null;
 
     #[Assert\NotBlank]
     #[Assert\Email]
@@ -54,13 +64,15 @@ class Applicant
     ])]
     private ?string $contactEmail = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length( min: 5, max: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Groups([
         'Applicant',
-        'Applicant.jobPreferences',
+        'Applicant.phone',
         'Application',
     ])]
-    private ?string $jobPreferences = null;
+    private ?string $phone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
@@ -91,16 +103,24 @@ class Applicant
         return $this->id->toString();
     }
 
-    public function getName(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->name;
+        return $this->firstName;
     }
 
-    public function setName(string $name): self
+    public function setFirstName(?string $firstName): void
     {
-        $this->name = $name;
+        $this->firstName = $firstName;
+    }
 
-        return $this;
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): void
+    {
+        $this->lastName = $lastName;
     }
 
     public function getContactEmail(): ?string
@@ -108,23 +128,19 @@ class Applicant
         return $this->contactEmail;
     }
 
-    public function setContactEmail(string $contactEmail): self
+    public function setContactEmail(?string $contactEmail): void
     {
         $this->contactEmail = $contactEmail;
-
-        return $this;
     }
 
-    public function getJobPreferences(): ?string
+    public function getPhone(): ?string
     {
-        return $this->jobPreferences;
+        return $this->phone;
     }
 
-    public function setJobPreferences(?string $jobPreferences): self
+    public function setPhone(?string $phone): void
     {
-        $this->jobPreferences = $jobPreferences;
-
-        return $this;
+        $this->phone = $phone;
     }
 
     public function getResume(): ?string
@@ -151,9 +167,10 @@ class Applicant
     {
         return [
             "id"=>$this->getId(),
-            "name"=>$this->getName(),
+            "firstName"=>$this->getFirstName(),
+            "lastName"=>$this->getLastName(),
             "contactEmail"=>$this->getContactEmail(),
-            "jobPreferences"=>$this->getJobPreferences(),
+            "phone"=>$this->getPhone(),
             "resume"=>$this->getResume(),
             "user"=>$this->getUser(),
             "createdAt"=>$this->getCreatedAt(),
