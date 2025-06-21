@@ -37,7 +37,7 @@ readonly class IndexController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/applicant',
+        path: '/v1/profile/applicant',
         methods: [Request::METHOD_GET],
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
@@ -49,7 +49,9 @@ readonly class IndexController
             $usersById[$user['id']] = $user;
         }
 
-        $applicants = $this->applicantRepository->findAll();
+        $applicants = $this->applicantRepository->findBy([
+            'user' => $loggedInUser->getUserIdentifier(),
+        ]);
 
         $response = [];
         foreach ($applicants as $key => $applicant){
