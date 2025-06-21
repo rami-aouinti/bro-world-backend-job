@@ -6,7 +6,10 @@ namespace App\Job\Transport\Controller\Api\v1\Job;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Domain\Entity\Job;
+use App\Job\Infrastructure\Repository\ApplicantRepository;
+use App\Job\Infrastructure\Repository\JobApplicationRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +26,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 readonly class GetJobController
 {
     public function __construct(
-        private SerializerInterface $serializer
+        private SerializerInterface $serializer,
+        private UserProxy           $userProxy,
+        private JobApplicationRepository $jobApplicationRepository,
+        private ApplicantRepository $applicantRepository
     ) {
     }
 
@@ -38,10 +44,34 @@ readonly class GetJobController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request, Job $job): JsonResponse
     {
+        // Sinon, fallback sur DQL classique
+        $users = $this->userProxy->getUsers();
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersById[$user['id']] = $user;
+        }
+        $applicants = $this->applicantRepository->findBy([
+            'user' => $loggedInUser->getUserIdentifier(),
+        ]);
+        $response = [];
+        $applied = null;
+        if(!empty($applicants)) {
+            foreach ($applicants as $applicant) {
+                $applied = $this->jobApplicationRepository->findOneBy([
+                    'applicant' => $applicant->getId(),
+                    'job' => $job->getId(),
+                ]);
+            }
+        }
+        $response = $job->toArray();
+        $response['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
+        $response['applied'] = $applied !== null;
+        $response['user'] = $usersById[$job->getUser()->toString()] ?? null;
+
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                $job,
+                $response,
                 'json',
                 [
                     'groups' => 'Job',
