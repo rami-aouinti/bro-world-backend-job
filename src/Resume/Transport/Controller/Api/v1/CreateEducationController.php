@@ -19,8 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -28,11 +26,11 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Resume')]
-class CreateEducationController extends AbstractController
+readonly class CreateEducationController
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly EntityManagerInterface $entityManager,
+        private SerializerInterface    $serializer,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -48,8 +46,7 @@ class CreateEducationController extends AbstractController
     )]
     public function __invoke(
         SymfonyUser $loggedInUser,
-        Request $request,
-        HubInterface $hub
+        Request $request
     ): JsonResponse {
 
         $education = new Formation();
