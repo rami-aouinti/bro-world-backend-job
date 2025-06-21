@@ -7,6 +7,7 @@ namespace App\Job\Transport\Controller\Api\v1\Job;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
+use App\Job\Infrastructure\Repository\ApplicantRepository;
 use App\Job\Infrastructure\Repository\JobApplicationRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
 use Doctrine\DBAL\Connection;
@@ -31,7 +32,8 @@ readonly class IndexController
         private SerializerInterface $serializer,
         private JobRepository       $jobRepository,
         private UserProxy           $userProxy,
-        private JobApplicationRepository $jobApplicationRepository
+        private JobApplicationRepository $jobApplicationRepository,
+        private ApplicantRepository $applicantRepository
     ) {
     }
 
@@ -106,12 +108,20 @@ readonly class IndexController
 
         $jobs = $qb->getQuery()->getResult();
 
+        $applicants = $this->applicantRepository->findBy([
+            'user' => $loggedInUser->getUserIdentifier(),
+        ]);
         $response = [];
         foreach ($jobs as $key => $job) {
-            $applied = $this->jobApplicationRepository->findOneBy([
-                'user' => $loggedInUser->getUserIdentifier(),
-                'job' => $job->getId(),
-            ]);
+            $applied = null;
+            if(!empty($applicants)) {
+                foreach ($applicants as $applicant) {
+                    $applied = $this->jobApplicationRepository->findOneBy([
+                        'applicant' => $applicant->getId(),
+                        'job' => $job->getId(),
+                    ]);
+                }
+            }
             $response[$key] = $job->toArray();
             $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
             $response[$key]['applied'] = $applied !== null;
