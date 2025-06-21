@@ -7,6 +7,7 @@ namespace App\Job\Transport\Controller\Api\v1\Job;
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
+use App\Job\Infrastructure\Repository\JobApplicationRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
 use Doctrine\DBAL\Connection;
 use JsonException;
@@ -29,7 +30,8 @@ readonly class IndexController
     public function __construct(
         private SerializerInterface $serializer,
         private JobRepository       $jobRepository,
-        private UserProxy           $userProxy
+        private UserProxy           $userProxy,
+        private JobApplicationRepository $jobApplicationRepository
     ) {
     }
 
@@ -106,7 +108,13 @@ readonly class IndexController
 
         $response = [];
         foreach ($jobs as $key => $job) {
+            $applied = $this->jobApplicationRepository->findOneBy([
+                'user' => $loggedInUser->getUserIdentifier(),
+                'job' => $job->getId(),
+            ]);
             $response[$key] = $job->toArray();
+            $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
+            $response[$key]['applied'] = $applied !== null;
             $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
         }
 
@@ -116,7 +124,6 @@ readonly class IndexController
             ]),
             true
         );
-
         return new JsonResponse([
             'data' => $output,
             'page' => $page,
