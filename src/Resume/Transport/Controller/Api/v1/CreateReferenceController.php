@@ -12,6 +12,7 @@ use App\Resume\Domain\Entity\Reference;
 use App\Resume\Infrastructure\Repository\SkillRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use JsonException;
 use OpenApi\Attributes as OA;
 use OpenApi\Attributes\JsonContent;
@@ -44,13 +45,12 @@ class CreateReferenceController extends AbstractController
      * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
      * @throws JsonException
-     * @throws \Exception
+     * @throws Exception
      */
     #[Route(
         path: '/v1/resume/reference',
         methods: [Request::METHOD_POST],
     )]
-    #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
     public function __invoke(
         SymfonyUser $loggedInUser,
         Request $request,

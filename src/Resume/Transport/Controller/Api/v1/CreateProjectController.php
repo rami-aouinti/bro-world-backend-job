@@ -41,7 +41,6 @@ class CreateProjectController extends AbstractController
         path: '/v1/resume/project',
         methods: [Request::METHOD_POST],
     )]
-    #[IsGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)]
     public function __invoke(
         SymfonyUser $loggedInUser,
         Request $request,
