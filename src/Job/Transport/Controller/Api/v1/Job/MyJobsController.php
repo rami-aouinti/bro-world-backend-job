@@ -126,6 +126,9 @@ readonly class MyJobsController
                 }
             }
             $response[$key] = $job->toArray();
+            $response[$key]['applications'] = $this->jobApplicationRepository->findBy([
+                'job' => $job->getId(),
+            ]);
             $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
             $response[$key]['applied'] = $applied !== null;
             $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
