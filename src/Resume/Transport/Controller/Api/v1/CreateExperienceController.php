@@ -6,9 +6,13 @@ namespace App\Resume\Transport\Controller\Api\v1;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Resume\Domain\Entity\Experience;
+use App\Resume\Domain\Entity\Formation;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use OpenApi\Attributes as OA;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +40,7 @@ class CreateExperienceController extends AbstractController
      * Get current user profile data, accessible only for 'IS_AUTHENTICATED_FULLY' users.
      *
      * @throws JsonException
+     * @throws \Exception
      */
     #[Route(
         path: '/v1/resume/experience',
@@ -46,15 +51,24 @@ class CreateExperienceController extends AbstractController
         Request $request,
         HubInterface $hub
     ): JsonResponse {
-        $data = $request->request->get('data');
+        $experience = new Experience();
+        $experience->setTitle($request->request->get('title'));
+        $experience->setCompany($request->request->get('company'));
+        $experience->setDescription($request->request->get('description'));
+        $experience->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $experience->setStartedAt(new DateTimeImmutable($request->request->get('startedAt')));
+        $experience->setEndedAt(new DateTimeImmutable($request->request->get('endedAt')));
+
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
 
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                'notification created',
+                $experience,
                 'json',
-                []
+                [ 'groups' => 'Experience',]
             ),
             true,
         );

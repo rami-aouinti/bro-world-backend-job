@@ -58,12 +58,6 @@ class CreateReferenceController extends AbstractController
         HubInterface $hub
     ): JsonResponse {
 
-        $project = new Project();
-        $project->setName($request->request->get('projectName'));
-        $project->setDescription($request->request->get('projectDescription'));
-        $project->setGitLink($request->request->get('projectGithubLink'));
-
-
         $reference = new Reference();
         $reference->setTitle($request->request->get('referenceTitle'));
         $reference->setDescription($request->request->get('referenceDescription'));
@@ -89,37 +83,16 @@ class CreateReferenceController extends AbstractController
             $this->entityManager->persist($media);
         }
 
-
-
-            $skill = $skillRepository->findOneBy([
-                'name' => $request->request->get('skillName'),
-                'user' => $loggedInUser
-            ]);
-            if (!$skill) {
-                //$skill = new Skill();
-                //$skill->setUser($loggedInUser);
-                //$skill->setName($skillsArray['name']);
-                //$skill->setType($skillsArray['type']);
-                //$skill->setLevel((int)$skillsArray['level']);
-                //$reference->addProject($project);
-            }
-            $project->addSkill($skill);
-
-
-        $reference->addProject($project);
-
-
-        $this->entityManager->persist($project);
-
+        $this->entityManager->persist($reference);
         $this->entityManager->flush();
 
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                'reference created',
+                $reference,
                 'json',
-                []
+                [ 'groups' => 'Reference',]
             ),
             true,
         );

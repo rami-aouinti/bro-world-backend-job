@@ -6,6 +6,7 @@ namespace App\Resume\Transport\Controller\Api\v1;
 
 use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
+use App\Resume\Domain\Entity\Project;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -46,16 +47,20 @@ class CreateProjectController extends AbstractController
         Request $request,
         HubInterface $hub
     ): JsonResponse {
-        $data = $request->request->get('data');
+        $project = new Project();
+        $project->setName($request->request->get('projectName'));
+        $project->setDescription($request->request->get('projectDescription'));
+        $project->setGitLink($request->request->get('projectGithubLink'));
 
-
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                'notification created',
+                $project,
                 'json',
-                []
+                [ 'groups' => 'Project',]
             ),
             true,
         );

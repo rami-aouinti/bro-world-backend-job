@@ -72,9 +72,9 @@ class CreateSkillController extends AbstractController
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                'notification created',
+                $skill,
                 'json',
-                []
+                [ 'groups' => 'Skill',]
             ),
             true,
         );

@@ -60,7 +60,7 @@ class CreateLanguageController extends AbstractController
         } else {
             $language = new Language();
             $language->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
-            $language->setName($request->request->get('language'));
+            $language->setName($request->request->get('name'));
             $language->setLevel((int)$request->request->get('level'));
             $language->setFlag($request->request->get('flag'));
         }
@@ -70,9 +70,9 @@ class CreateLanguageController extends AbstractController
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(
             $this->serializer->serialize(
-                'notification created',
+                $language,
                 'json',
-                []
+                [ 'groups' => 'Language',]
             ),
             true,
         );
