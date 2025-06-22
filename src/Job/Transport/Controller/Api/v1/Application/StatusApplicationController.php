@@ -54,7 +54,6 @@ readonly class StatusApplicationController
         if ($status === 'progress') {
             $application->setStatus(ApplicationStatus::Progress);
         }
-        $application->setStatus(ApplicationStatus::Accept);
         $this->jobApplicationRepository->save($application, true);
 
         /** @var array<string, string|array<string, string>> $output */
