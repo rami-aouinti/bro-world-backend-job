@@ -40,11 +40,20 @@ readonly class AcceptApplicationController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/application/accept/{application}',
+        path: '/v1/application/{status}/{application}',
         methods: [Request::METHOD_PUT],
     )]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request, JobApplication $application): JsonResponse
+    public function __invoke(SymfonyUser $loggedInUser, Request $request, string $status ,JobApplication $application): JsonResponse
     {
+        if ($status === 'accept') {
+            $application->setStatus(ApplicationStatus::Accept);
+        }
+        if ($status === 'declined') {
+            $application->setStatus(ApplicationStatus::Declined);
+        }
+        if ($status === 'progress') {
+            $application->setStatus(ApplicationStatus::Progress);
+        }
         $application->setStatus(ApplicationStatus::Accept);
         $this->jobApplicationRepository->save($application, true);
 
