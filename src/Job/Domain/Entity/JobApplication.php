@@ -4,6 +4,7 @@ namespace App\Job\Domain\Entity;
 
 use App\General\Domain\Entity\Traits\Timestampable;
 use App\General\Domain\Entity\Traits\Uuid;
+use App\Job\Domain\Enum\ApplicationStatus;
 use App\Job\Infrastructure\Repository\JobApplicationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
@@ -49,6 +50,10 @@ class JobApplication
     ])]
     private ?Applicant $applicant = null;
 
+    #[ORM\Column(type: 'string', enumType: ApplicationStatus::class)]
+    #[Groups(['Application', 'Application.status'])]
+    private ApplicationStatus $status = ApplicationStatus::Request;
+
     /**
      * @throws Throwable
      */
@@ -86,12 +91,24 @@ class JobApplication
         return $this;
     }
 
+    public function getStatus(): ApplicationStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(ApplicationStatus $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
             "id"=>$this->getId(),
             "applicant"=>$this->getApplicant()?->toArray(),
             "job"=>$this->getJob()?->toArray(),
+            "status" => $this->getStatus()->value,
             "createdAt"=>$this->getCreatedAt(),
             "updatedAt"=>$this->getUpdatedAt()
         ];

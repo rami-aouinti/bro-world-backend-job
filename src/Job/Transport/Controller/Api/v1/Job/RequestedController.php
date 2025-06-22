@@ -124,6 +124,7 @@ readonly class RequestedController
             }
             if ($applied) {
                 $response[$key] = $job->toArray();
+                $response[$key]['applied'] = $applied !== null;
                 $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
                 $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
             }
