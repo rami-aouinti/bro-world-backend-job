@@ -41,7 +41,7 @@ readonly class AcceptApplicationController
      */
     #[Route(
         path: '/v1/application/{status}/{application}',
-        methods: [Request::METHOD_PUT],
+        methods: [Request::METHOD_POST],
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request, string $status ,JobApplication $application): JsonResponse
     {
