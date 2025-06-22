@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[AsController]
 #[OA\Tag(name: 'Applicant')]
-readonly class DeclinedApplicationController
+readonly class StatusApplicationController
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -40,12 +40,21 @@ readonly class DeclinedApplicationController
      * @throws JsonException
      */
     #[Route(
-        path: '/v1/application/declined/{application}',
-        methods: [Request::METHOD_PUT],
+        path: '/v1/applications/{status}/{application}',
+        methods: [Request::METHOD_POST],
     )]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request, JobApplication $application): JsonResponse
+    public function __invoke(SymfonyUser $loggedInUser, Request $request, string $status ,JobApplication $application): JsonResponse
     {
-        $application->setStatus(ApplicationStatus::Declined);
+        if ($status === 'accept') {
+            $application->setStatus(ApplicationStatus::Accept);
+        }
+        if ($status === 'declined') {
+            $application->setStatus(ApplicationStatus::Declined);
+        }
+        if ($status === 'progress') {
+            $application->setStatus(ApplicationStatus::Progress);
+        }
+        $application->setStatus(ApplicationStatus::Accept);
         $this->jobApplicationRepository->save($application, true);
 
         /** @var array<string, string|array<string, string>> $output */
