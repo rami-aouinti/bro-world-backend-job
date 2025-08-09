@@ -47,7 +47,13 @@ readonly class IndexController
         $page = max((int)$request->query->get('page', 1), 1);
         $limit = max((int)$request->query->get('limit', 20), 1);
         $offset = ($page - 1) * $limit;
-        $cacheKey = "public_jobs_page_{$page}_limit_{$limit}";
+
+        $title = $request->query->get('title');
+        $company = $request->query->get('company');
+        $location = $request->query->get('location');
+
+
+        $cacheKey = "public_jobs_page_{$page}_limit_{$limit}_{$title}_{$company}_{$location}";
 
         $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($limit, $offset, $page, $request) {
             $item->tag(['jobs', 'public_jobs']);
