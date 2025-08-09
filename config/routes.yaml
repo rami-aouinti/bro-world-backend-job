@@ -14,3 +14,10 @@ resume-controllers:
     prefix: /api
     defaults:
         _format: json
+resume-public-controllers:
+    resource:
+        path: ../src/Resume/Transport/Controller/Frontend/
+        namespace: App\Resume\Transport\Controller\Frontend
+    type: attribute
+    defaults:
+        _format: json

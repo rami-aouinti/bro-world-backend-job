@@ -147,7 +147,8 @@ when@dev:
 
         App\Tests\Utils\:
             resource: '../tests/Utils/*'
-
+        App\Resume\Infrastructure\DataFixtures\:
+            resource: '../src/Resume/Infrastructure/DataFixtures/*'
         ProxyManager\Factory\AccessInterceptorValueHolderFactory:
             class: ProxyManager\Factory\AccessInterceptorValueHolderFactory
 
