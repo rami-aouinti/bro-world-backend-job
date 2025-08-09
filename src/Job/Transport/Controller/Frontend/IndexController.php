@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Job\Transport\Controller\Api\v1\Job;
+namespace App\Job\Transport\Controller\Frontend;
 
 use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
-use App\Job\Infrastructure\Repository\ApplicantRepository;
-use App\Job\Infrastructure\Repository\JobApplicationRepository;
 use App\Job\Infrastructure\Repository\JobRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -30,9 +27,7 @@ readonly class IndexController
     public function __construct(
         private SerializerInterface $serializer,
         private JobRepository       $jobRepository,
-        private UserProxy           $userProxy,
-        private JobApplicationRepository $jobApplicationRepository,
-        private ApplicantRepository $applicantRepository
+        private UserProxy           $userProxy
     ) {
     }
 
@@ -44,8 +39,8 @@ readonly class IndexController
      * @throws ClientExceptionInterface
      * @throws JsonException
      */
-    #[Route(path: '/v1/job', methods: [Request::METHOD_GET])]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
+    #[Route(path: '/platform/job', methods: [Request::METHOD_GET])]
+    public function __invoke(Request $request): JsonResponse
     {
         $page = max((int)$request->query->get('page', 1), 1);
         $limit = max((int)$request->query->get('limit', 20), 1);
@@ -107,22 +102,11 @@ readonly class IndexController
 
         $jobs = $qb->getQuery()->getResult();
 
-        $applicants = $this->applicantRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
-        ]);
         $response = [];
         foreach ($jobs as $key => $job) {
             $applied = null;
-            if(!empty($applicants)) {
-                foreach ($applicants as $applicant) {
-                    $applied = $this->jobApplicationRepository->findOneBy([
-                        'applicant' => $applicant->getId(),
-                        'job' => $job->getId(),
-                    ]);
-                }
-            }
             $response[$key] = $job->toArray();
-            $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
+            $response[$key]['owner'] = null;
             $response[$key]['applied'] = $applied !== null;
             $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
         }
