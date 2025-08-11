@@ -316,7 +316,7 @@ class Job
             "workType"=>$this->getWorkType(),
             "workLocation"=>$this->getWorkLocation(),
             "salaryRange"=>$this->getSalaryRange(),
-            "languages"=>$this->getLanguages(),
+            "languages"=>$this->getLanguages()->toArray(),
             "contractType"=>$this->getContractType(),
             "requirements"=>$this->getRequirements(),
             "benefits"=>$this->getBenefits(),
