@@ -137,6 +137,13 @@ readonly class IndexController
                 $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
                 $response[$key]['applied'] = $applied !== null;
                 $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
+                $response[$key]['languages'] = array_map(static function ($l) {
+                    return [
+                        'id' => $l->getId(),
+                        'name' => $l->getName(),
+                        'level' => $l->getLevel()->value,
+                    ];
+                }, $job->getLanguages()->toArray());
             }
             return ['data' => $response, 'page' => $page, 'limit' => $limit, 'count' => count($this->jobRepository->findAll())];
 
