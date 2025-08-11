@@ -123,6 +123,13 @@ readonly class IndexController
                 $data[$key]['owner'] = null;
                 $data[$key]['applied'] = $applied !== null;
                 $data[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
+                $data[$key]['languages'] = array_map(static function ($l) {
+                    return [
+                        'id' => $l->getId(),
+                        'name' => $l->getName(),
+                        'level' => $l->getLevel()->value,
+                    ];
+                }, $job->getLanguages()->toArray());
             }
             return ['data' => $data, 'page' => $page, 'limit' => $limit, 'count' => count($this->jobRepository->findAll())];
         });
