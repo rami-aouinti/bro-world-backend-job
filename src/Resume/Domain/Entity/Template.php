@@ -17,90 +17,117 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 use Throwable;
 
-/**
- * Template entity representing a CV/Resume template card for the frontend.
- *
- * Example serialized JSON (group: "Template"):
- * {
- *   "id": "cv-2025",
- *   "title": "Lebenslauf 2025",
- *   "subtitle": "Moderne, sauber",
- *   "category": "Kreativ",
- *   "badge": "TOP",
- *   "previewImg": "https://picsum.photos/seed/cv2025/800/1130",
- *   "pdfUrl": "/samples/cv-2025.pdf",
- *   "pages": 2,
- *   "tags": ["Modern", "ATS-friendly"]
- * }
- */
 #[ORM\Entity(repositoryClass: TemplateRepository::class)]
 #[ORM\Table(name: 'resume_template')]
-#[UniqueEntity(fields: ['slug'], message: 'This template id/slug is already used.')]
+#[UniqueEntity(fields: ['key'], message: 'Preset key already exists.')]
 class Template
 {
-    final public const string SET_TEMPLATE = 'set.Template';
-
     use Timestampable;
     use Uuid;
 
-    /**
-     * Internal primary key (UUID binary ordered time) — not exposed in API groups
-     */
     #[ORM\Id]
-    #[ORM\Column(name: 'id', type: UuidBinaryOrderedTimeType::NAME, unique: true, nullable: false)]
+    #[ORM\Column(type: UuidBinaryOrderedTimeType::NAME, unique: true, nullable: false)]
     private UuidInterface $id;
 
-    /**
-     * Public identifier used by the frontend (e.g. "cv-2025").
-     * Serialized as `id`.
-     */
-    #[ORM\Column(name: 'slug', length: 100, unique: true)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
-    #[SerializedName('id')]
+    #[ORM\Column(length: 100, unique: true)]
+    #[Groups(['cv:read'])]
     #[Assert\NotBlank]
-    private string $slug;
+    private string $key;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
+    #[Groups(['cv:read'])]
     #[Assert\NotBlank]
-    private string $title;
+    private string $label;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
-    #[Assert\NotBlank]
-    private string $subtitle;
+    /** ⚠️ "default" est mot réservé; on stocke dans isDefault mais on sérialise sous "default" */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    #[Groups(['cv:read'])]
+    #[SerializedName('default')]
+    private ?bool $isDefault = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
+    #[Groups(['cv:read'])]
     #[Assert\NotBlank]
-    private string $category;
+    private string $fontFamily;
 
-    #[ORM\Column(length: 50, nullable: true)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
-    private ?string $badge = null;
-
-    #[ORM\Column(length: 2048)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
+    #[ORM\Column(length: 20)]
+    #[Groups(['cv:read'])]
     #[Assert\NotBlank]
-    #[Assert\Url(relativeProtocol: true, allowRelativePath: true)]
-    private string $previewImg;
+    private string $baseSize;
 
-    #[ORM\Column(length: 2048)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
-    #[Assert\NotBlank]
-    #[Assert\Url(relativeProtocol: true, allowRelativePath: true)]
-    private string $pdfUrl;
+    #[ORM\Column(length: 2048, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?string $previewImg = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
-    #[Assert\Positive]
-    private int $pages;
-
-    /** @var string[] */
+    /** { primary, accent, paper, text } */
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['Template', self::SET_TEMPLATE])]
-    #[Assert\All([new Assert\Type('string')])]
-    private array $tags = [];
+    #[Groups(['cv:read'])]
+    private array $palette = [];
+
+    /** { show, position, widthMm, heightMm, rounded } */
+    #[ORM\Column(type: Types::JSON)]
+    #[Groups(['cv:read'])]
+    private array $photo = [];
+
+    /** { enabled, elevation, color, custom? } */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?array $photoShadow = null;
+
+    /** 'stylish' | 'sidebar-left' | 'sidebar-right' | 'stacked' | 'photo-left' */
+    #[ORM\Column(length: 50)]
+    #[Groups(['cv:read'])]
+    #[Assert\NotBlank]
+    private string $layout;
+
+    /** { enabled?, widthMm?, background, text?, borderColor? } */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?array $sidebar = null;
+
+    /** { type, anchor?, color?, color2?, sizeMm?, offsetMmX?, offsetMmY?, rotateDeg?, enabled? } */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?array $corner = null;
+
+    /** { show, side?, color?, widthMm?, offsetMm? } */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?array $vbar = null;
+
+    /** { chipVariant, chipColor?, chipDensity?, editable?, draggable? } */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?array $skills = null;
+
+    /** { variant, maxLevel?, showNote?, sizePx?, accent? } */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['cv:read'])]
+    private ?array $languages = null;
+
+    // --- Nouveaux champs plats demandés
+    #[ORM\Column(length: 50)]
+    #[Groups(['cv:read'])]
+    #[Assert\NotBlank]
+    private string $category; // 'Creative' | 'Classic' | 'Premium' ...
+
+    #[ORM\Column(length: 50)]
+    #[Groups(['cv:read'])]
+    #[Assert\NotBlank]
+    private string $template; // 'CV' | 'Cover'
+
+    #[ORM\Column(length: 2048)]
+    #[Groups(['cv:read'])]
+    #[Assert\NotBlank]
+    private string $src;
+
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Groups(['cv:read'])]
+    private int $downloads = 0;
+
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Groups(['cv:read'])]
+    private int $views = 0;
 
     /**
      * @throws Throwable
@@ -110,134 +137,66 @@ class Template
         $this->id = $this->createUuid();
     }
 
-    public function __toString(): string
-    {
-        return $this->title ?? '';
-    }
+    // --- Getters/Setters (seuls nécessaires montrés ici) ---
+    public function getKey(): string { return $this->key; }
+    public function setKey(string $key): self { $this->key = $key; return $this; }
 
-    // --- Internal UUID accessor (not in serialization groups) ---
-    public function getUuid(): string
-    {
-        return $this->id->toString();
-    }
+    public function getLabel(): string { return $this->label; }
+    public function setLabel(string $label): self { $this->label = $label; return $this; }
 
-    // --- Public API fields ---
-    public function getSlug(): string
-    {
-        return $this->slug;
-    }
+    public function isDefault(): ?bool { return $this->isDefault; }
+    public function setIsDefault(?bool $isDefault): self { $this->isDefault = $isDefault; return $this; }
 
-    public function setSlug(string $slug): self
-    {
-        $this->slug = $slug;
-        return $this;
-    }
+    public function getFontFamily(): string { return $this->fontFamily; }
+    public function setFontFamily(string $fontFamily): self { $this->fontFamily = $fontFamily; return $this; }
 
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
+    public function getBaseSize(): string { return $this->baseSize; }
+    public function setBaseSize(string $baseSize): self { $this->baseSize = $baseSize; return $this; }
 
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-        return $this;
-    }
+    public function getPreviewImg(): ?string { return $this->previewImg; }
+    public function setPreviewImg(?string $previewImg): self { $this->previewImg = $previewImg; return $this; }
 
-    public function getSubtitle(): string
-    {
-        return $this->subtitle;
-    }
+    public function getPalette(): array { return $this->palette; }
+    public function setPalette(array $palette): self { $this->palette = $palette; return $this; }
 
-    public function setSubtitle(string $subtitle): self
-    {
-        $this->subtitle = $subtitle;
-        return $this;
-    }
+    public function getPhoto(): array { return $this->photo; }
+    public function setPhoto(array $photo): self { $this->photo = $photo; return $this; }
 
-    public function getCategory(): string
-    {
-        return $this->category;
-    }
+    public function getPhotoShadow(): ?array { return $this->photoShadow; }
+    public function setPhotoShadow(?array $photoShadow): self { $this->photoShadow = $photoShadow; return $this; }
 
-    public function setCategory(string $category): self
-    {
-        $this->category = $category;
-        return $this;
-    }
+    public function getLayout(): string { return $this->layout; }
+    public function setLayout(string $layout): self { $this->layout = $layout; return $this; }
 
-    public function getBadge(): ?string
-    {
-        return $this->badge;
-    }
+    public function getSidebar(): ?array { return $this->sidebar; }
+    public function setSidebar(?array $sidebar): self { $this->sidebar = $sidebar; return $this; }
 
-    public function setBadge(?string $badge): self
-    {
-        $this->badge = $badge;
-        return $this;
-    }
+    public function getCorner(): ?array { return $this->corner; }
+    public function setCorner(?array $corner): self { $this->corner = $corner; return $this; }
 
-    public function getPreviewImg(): string
-    {
-        return $this->previewImg;
-    }
+    public function getVbar(): ?array { return $this->vbar; }
+    public function setVbar(?array $vbar): self { $this->vbar = $vbar; return $this; }
 
-    public function setPreviewImg(string $previewImg): self
-    {
-        $this->previewImg = $previewImg;
-        return $this;
-    }
+    public function getSkills(): ?array { return $this->skills; }
+    public function setSkills(?array $skills): self { $this->skills = $skills; return $this; }
 
-    public function getPdfUrl(): string
-    {
-        return $this->pdfUrl;
-    }
+    public function getLanguages(): ?array { return $this->languages; }
+    public function setLanguages(?array $languages): self { $this->languages = $languages; return $this; }
 
-    public function setPdfUrl(string $pdfUrl): self
-    {
-        $this->pdfUrl = $pdfUrl;
-        return $this;
-    }
+    public function getCategory(): string { return $this->category; }
+    public function setCategory(string $category): self { $this->category = $category; return $this; }
 
-    public function getPages(): int
-    {
-        return $this->pages;
-    }
+    public function getTemplate(): string { return $this->template; }
+    public function setTemplate(string $template): self { $this->template = $template; return $this; }
 
-    public function setPages(int $pages): self
-    {
-        $this->pages = $pages;
-        return $this;
-    }
+    public function getSrc(): string { return $this->src; }
+    public function setSrc(string $src): self { $this->src = $src; return $this; }
 
-    /**
-     * @return string[]
-     */
-    public function getTags(): array
-    {
-        return $this->tags;
-    }
+    public function getDownloads(): int { return $this->downloads; }
+    public function setDownloads(int $downloads): self { $this->downloads = $downloads; return $this; }
+    public function incDownloads(): void { ++$this->downloads; }
 
-    /**
-     * @param string[] $tags
-     */
-    public function setTags(array $tags): self
-    {
-        $this->tags = array_values($tags);
-        return $this;
-    }
-
-    public function addTag(string $tag): self
-    {
-        if (!in_array($tag, $this->tags, true)) {
-            $this->tags[] = $tag;
-        }
-        return $this;
-    }
-
-    public function removeTag(string $tag): self
-    {
-        $this->tags = array_values(array_filter($this->tags, static fn(string $t): bool => $t !== $tag));
-        return $this;
-    }
+    public function getViews(): int { return $this->views; }
+    public function setViews(int $views): self { $this->views = $views; return $this; }
+    public function incViews(): void { ++$this->views; }
 }
