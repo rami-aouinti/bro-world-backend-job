@@ -29,9 +29,10 @@ class Template
     #[ORM\Column(type: UuidBinaryOrderedTimeType::NAME, unique: true, nullable: false)]
     private UuidInterface $id;
 
-    #[ORM\Column(length: 100, unique: true)]
+    #[ORM\Column(name: 'preset_key', length: 100, unique: true)]
     #[Groups(['cv:read'])]
     #[Assert\NotBlank]
+    #[SerializedName('key')] // <-- on garde "key" en sortie JSON
     private string $key;
 
     #[ORM\Column(length: 255)]
