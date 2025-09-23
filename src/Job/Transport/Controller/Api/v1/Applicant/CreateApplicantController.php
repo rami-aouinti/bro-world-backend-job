@@ -12,8 +12,10 @@ use App\Job\Infrastructure\Repository\ApplicantRepository;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -49,8 +51,13 @@ readonly class CreateApplicantController
         $applicant->setContactEmail($request->request->get('contactEmail'));
         $applicant->setPhone($request->request->get('phone'));
         $applicant->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
-        if($request->files->get('file')) {
-            $resume = $this->resumeService->uploadCV($request);
+        if ($request->files->get('file')) {
+            try {
+                $resume = $this->resumeService->uploadCV($request);
+            } catch (FileException $exception) {
+                return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
             $applicant->setResume($resume);
         }
 

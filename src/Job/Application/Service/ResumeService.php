@@ -3,7 +3,6 @@
 namespace App\Job\Application\Service;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -20,6 +19,8 @@ class ResumeService
      * @param Request $request
      *
      * @return string
+     *
+     * @throws FileException
      */
     public function uploadCV(Request $request): string
     {
@@ -39,7 +40,7 @@ class ResumeService
                 $newFilename
             );
         } catch (FileException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
+            throw $e;
         }
         $baseUrl = $request->getSchemeAndHttpHost();
         $relativePath = '/uploads/resume/' . $newFilename;
