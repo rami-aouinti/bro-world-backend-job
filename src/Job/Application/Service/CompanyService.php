@@ -3,7 +3,6 @@
 namespace App\Job\Application\Service;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -39,7 +38,7 @@ class CompanyService
                 $newFilename
             );
         } catch (FileException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
+            throw new FileException('Failed to upload company logo.', 0, $e);
         }
         $baseUrl = $request->getSchemeAndHttpHost();
         $relativePath = '/uploads/companies/logo/' . $newFilename;

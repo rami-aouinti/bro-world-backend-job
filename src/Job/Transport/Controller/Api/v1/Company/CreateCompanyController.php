@@ -8,14 +8,14 @@ use App\General\Domain\Utils\JSON;
 use App\General\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\Service\CompanyService;
 use App\Job\Domain\Entity\Company;
-use App\Job\Domain\Entity\Job;
 use App\Job\Infrastructure\Repository\CompanyRepository;
-use App\Job\Infrastructure\Repository\JobRepository;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -47,13 +47,18 @@ readonly class CreateCompanyController
     )]
     public function __invoke(SymfonyUser $loggedInUser, Request $request): JsonResponse
     {
-         $company = new Company();
+        $company = new Company();
         $company->setName($request->request->get('name'));
         $company->setDescription($request->request->get('description'));
         $company->setLocation($request->request->get('location') ?? '');
         $company->setContactEmail($request->request->get('contactEmail') ?? '');
-        if($request->files->get('file')) {
-            $logo = $this->companyService->uploadLogo($request);
+        if ($request->files->get('file')) {
+            try {
+                $logo = $this->companyService->uploadLogo($request);
+            } catch (FileException $exception) {
+                return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+
             $company->setLogo($logo);
         }
 
