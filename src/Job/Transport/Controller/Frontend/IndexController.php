@@ -106,8 +106,20 @@ readonly class IndexController
 
             $skills = $request->query->all('skills');
             if (!empty($skills)) {
-                $qb->andWhere('j.requiredSkills IN (:skills)')
-                    ->setParameter('skills', $skills);
+                $expr = $qb->expr();
+
+                foreach (array_values($skills) as $index => $skill) {
+                    $parameterName = sprintf('skill_%d', $index);
+
+                    $qb->andWhere(
+                        $expr->eq(
+                            $expr->func('JSON_CONTAINS', ['j.requiredSkills', ':' . $parameterName]),
+                            $expr->literal(1)
+                        )
+                    );
+
+                    $qb->setParameter($parameterName, json_encode($skill, JSON_THROW_ON_ERROR));
+                }
             }
 
             $qb->orderBy('j.createdAt', 'DESC');

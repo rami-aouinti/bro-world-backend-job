@@ -63,6 +63,7 @@ doctrine:
                     string_functions:
                         uuid_o_t_to_bin: App\General\Infrastructure\DQL\UuidOTToBin
                         bin_to_uuid_o_t: App\General\Infrastructure\DQL\BinToUuidOT
+                        json_contains: DoctrineExtensions\Query\Mysql\JsonContains
 
 when@prod: &not-dev
     doctrine:
