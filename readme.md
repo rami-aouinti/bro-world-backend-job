@@ -1,85 +1,112 @@
-# PHP symfony environment with JSON REST API example
-Docker environment (based on official php and mysql docker hub repositories) required to run Symfony with JSON REST API example.
+# PHP Symfony Environment for JSON REST APIs
 
-[![Actions Status](https://github.com/systemsdk/docker-symfony-api/workflows/Symfony%20Rest%20API/badge.svg)](https://github.com/systemsdk/docker-symfony-api/actions)
-[![CircleCI](https://circleci.com/gh/systemsdk/docker-symfony-api.svg?style=svg)](https://circleci.com/gh/systemsdk/docker-symfony-api)
-[![Coverage Status](https://coveralls.io/repos/github/systemsdk/docker-symfony-api/badge.svg)](https://coveralls.io/github/systemsdk/docker-symfony-api)
-[![Latest Stable Version](https://poser.pugx.org/systemsdk/docker-symfony-api/v)](https://packagist.org/packages/systemsdk/docker-symfony-api)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+This repository contains a fully dockerised Symfony 7 environment that showcases common patterns for building JSON REST APIs. It provides a batteries-included development experience with PHP 8.4 FPM, Nginx, MySQL, RabbitMQ, Elasticsearch, Redis, Kibana, and Mailpit configured to work together through Docker Compose.
 
-[Source code](https://github.com/systemsdk/docker-symfony-api.git)
+The setup is opinionated around local development but includes staging and production presets so the same stack can be reproduced in higher environments. Use it as a starting point for new projects or as a learning resource for running Symfony applications in containers.
+
+---
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Requirements](#requirements)
+3. [Architecture Overview](#architecture-overview)
+4. [Getting Started](#getting-started)
+   * [Install Docker](#install-docker)
+   * [Clone or Scaffold the Project](#clone-or-scaffold-the-project)
+   * [Configure Environment Secrets](#configure-environment-secrets)
+   * [Start the Development Stack](#start-the-development-stack)
+   * [Run Database and Messaging Setup](#run-database-and-messaging-setup)
+5. [Available Services](#available-services)
+6. [Managing Environments](#managing-environments)
+7. [Working with Containers](#working-with-containers)
+8. [Key Make Commands](#key-make-commands)
+9. [Testing and Quality Tools](#testing-and-quality-tools)
+10. [Troubleshooting](#troubleshooting)
+11. [Useful Packages](#useful-packages)
+12. [License](#license)
+
+---
+
+## Features
+
+* **Docker-first workflow** – reproducible environments for development, staging, and production using Docker Compose.
+* **API ready** – Symfony 7 configured for JSON REST APIs with JWT authentication, API documentation, and background processing.
+* **Observability stack** – Elasticsearch, Kibana, and RabbitMQ management console available out of the box.
+* **Developer tooling** – preconfigured PHPStan, PHP CS Fixer (via ECS), PHP Insights, PHPUnit, and more accessible through `make` targets.
 
 ## Requirements
-* Docker Engine version 23.0 or later
-* Docker Compose version 2.0 or later
-* An editor or IDE
-* MySQL Workbench
 
-Note: OS recommendation - Linux Ubuntu based.
+* Docker Engine **23.0** or later
+* Docker Compose **v2**
+* A terminal with GNU Make
+* An editor/IDE (PHPStorm recommended)
+* Optional client tools such as MySQL Workbench for inspecting databases
 
-## Components
-1. Nginx 1.27
-2. PHP 8.4 fpm
-3. MySQL 8
-4. Symfony 7
-5. RabbitMQ 4
-6. Elasticsearch 7
-7. Kibana 7
-8. Redis 7
-9. Mailpit (only for debug emails on dev environment)
+> **Tip**: Linux (Ubuntu or Debian based) offers the best experience, but macOS and Windows (WSL2) are supported as long as Docker Desktop meets the requirements.
 
-## Setting up Docker Engine with Docker Compose
-For installing Docker Engine with docker compose please follow steps mentioned on page [Docker Engine](https://docs.docker.com/engine/install/).
+## Architecture Overview
 
-Note 1: Please run next cmd after above step if you are using Linux OS: `sudo usermod -aG docker $USER`
+| Component | Version | Purpose |
+|-----------|---------|---------|
+| Nginx | 1.27 | Serves the Symfony application and static assets |
+| PHP-FPM | 8.4 | Runs the Symfony codebase |
+| MySQL | 8 | Primary relational database |
+| RabbitMQ | 4 | Message broker for async tasks |
+| Elasticsearch | 7 | Full-text search and analytics |
+| Kibana | 7 | Observability UI for Elasticsearch |
+| Redis | 7 | Cache and queue backend |
+| Mailpit | latest | Development SMTP server (DEV only) |
 
-Note 2: If you are using Docker Desktop for MacOS 12.2 or later - please enable [virtiofs](https://www.docker.com/blog/speed-boost-achievement-unlocked-on-docker-desktop-4-6-for-mac/) for performance (enabled by default since Docker Desktop v4.22).
+The services are declared in `compose.yaml` and environment-specific overrides such as `compose-staging.yaml`, `compose-prod.yaml`, and `compose.override.yaml`.
 
-## Setting up DEV environment
-1.You can clone this repository from GitHub or install via composer.
+## Getting Started
 
-If you have installed composer and want to install environment via composer you can use next cmd command:
+### Install Docker
+
+Follow the official Docker Engine installation guide for your operating system: <https://docs.docker.com/engine/install/>.
+
+After installation on Linux, add your user to the Docker group so you can run Docker without `sudo`:
+
 ```bash
-composer create-project systemsdk/docker-symfony-api api-example-app
+sudo usermod -aG docker "$USER"
 ```
 
-2.Set another APP_SECRET for application in .env.prod and .env.staging files.
+If you are using Docker Desktop on macOS 12.2 or later, enable [virtiofs file sharing](https://www.docker.com/blog/speed-boost-achievement-unlocked-on-docker-desktop-4-6-for-mac/) (enabled by default since Docker Desktop v4.22) for improved performance.
 
-Note 1: You can get unique secret key for example [here](http://nux.net/secret).
+### Clone or Scaffold the Project
 
-Note 2: Do not use .env.local.php on dev and test environment (delete it if exist).
+Clone the repository:
 
-Note 3: If you want to change default web port/xdebug configuration you can create .env.local file and set some params (see .env file).
-
-Note 4: Delete var/mysql-data folder if it exists.
-
-3.Add domain to local 'hosts' file:
 ```bash
+git clone https://github.com/systemsdk/docker-symfony-api.git
+cd docker-symfony-api
+```
+
+Alternatively, create a fresh project using Composer:
+
+```bash
+composer create-project systemsdk/docker-symfony-api api-example-app
+cd api-example-app
+```
+
+### Configure Environment Secrets
+
+1. Duplicate `.env` into `.env.local` (optional) to override values locally.
+2. Update `APP_SECRET` in `.env`, `.env.staging`, and `.env.prod` with unique values. Generate secrets from <http://nux.net/secret> or using `openssl rand -hex 16`.
+3. Remove `var/mysql-data` if it exists to avoid permission issues.
+4. Update `compose-prod.yaml` and `.env.prod` with secure credentials for MySQL and RabbitMQ before deploying to staging/production.
+
+> **Note**: Do not commit `.env.local.php` for development or test environments. Delete it if generated.
+
+Add the default host entry so local DNS resolves:
+
+```text
 127.0.0.1    localhost
 ```
 
-4.Configure `/docker/dev/xdebug-main.ini` (Linux/Windows) or `/docker/dev/xdebug-osx.ini` (MacOS) (optional):
+### Start the Development Stack
 
-- In case you need debug only requests with IDE KEY: PHPSTORM from frontend in your browser:
-```bash
-xdebug.start_with_request = no
-```
-Install locally in Firefox extension "Xdebug helper" and set in settings IDE KEY: PHPSTORM
-
-- In case you need debug any request to an api (by default):
-```bash
-xdebug.start_with_request = yes
-```
-
-5.Elasticsearch is pre-configured with the following privileged bootstrap user(you can use it in order to enter in Kibana):
-```bash
-user: elastic
-password: changeme
-```
-
-Note: For prod/staging environment another password should be used.
-
-6.Build, start and install the docker images from your terminal:
 ```bash
 make build
 make start
@@ -87,7 +114,12 @@ make composer-install
 make generate-jwt-keys
 ```
 
-7.Make sure that you have installed migrations / created roles and groups / cron jobs / messenger transports / elastic template:
+These commands build the images, start the containers, install Composer dependencies, and generate the JWT key pair used by the authentication layer.
+
+### Run Database and Messaging Setup
+
+After the containers are running, initialise the database, background workers, and search templates:
+
 ```bash
 make migrate
 make create-roles-groups
@@ -96,37 +128,34 @@ make messenger-setup-transports
 make elastic-create-or-update-template
 ```
 
-8.In order to use this application, please open in your browser next urls:
-- [http://localhost/api/doc](http://localhost/api/doc)
-- [http://localhost:15672 (RabbitMQ)](http://localhost:15672)
-- [http://localhost:5601 (Kibana)](http://localhost:5601)
-- [http://localhost:8025 (Mailpit)](http://localhost:8025)
+## Available Services
 
-## Setting up STAGING environment locally
-1.You can clone this repository from GitHub or install via composer.
+Once `make start` completes, the following URLs are available:
 
-Note: Delete var/mysql-data folder if it is exist.
+* API documentation – <http://localhost/api/doc>
+* RabbitMQ management – <http://localhost:15672>
+* Kibana – <http://localhost:5601>
+* Mailpit (development email inbox) – <http://localhost:8025>
 
-If you have installed composer and want to install environment via composer you can use next cmd command:
-```bash
-composer create-project systemsdk/docker-symfony-api api-example-app
+Use the default Elasticsearch bootstrap credentials to access Kibana:
+
+```text
+Username: elastic
+Password: changeme
 ```
 
-2.Elasticsearch is pre-configured with the following privileged bootstrap user:
-```bash
-user: elastic
-password: changeme
-```
+Replace these credentials for staging and production deployments.
 
-3.Build, start and install the docker images from your terminal:
+## Managing Environments
+
+### Staging Profile
+
+Use the staging Compose file and tailored make targets:
+
 ```bash
 make build-staging
 make start-staging
 make generate-jwt-keys
-```
-
-4.Make sure that you have installed migrations / created roles and groups / cron jobs / messenger transports / elastic template:
-```bash
 make migrate-no-test
 make create-roles-groups
 make migrate-cron-jobs
@@ -134,35 +163,14 @@ make messenger-setup-transports
 make elastic-create-or-update-template
 ```
 
-## Setting up PROD environment locally
-1.You can clone this repository from GitHub or install via composer.
+### Production Profile
 
-If you have installed composer and want to install environment via composer you can use next cmd command:
-```bash
-composer create-project systemsdk/docker-symfony-api api-example-app
-```
+Before starting the production stack, ensure that `.env.prod` and `compose-prod.yaml` include strong credentials. Then run:
 
-2.Edit compose-prod.yaml and set necessary user/password for MySQL and RabbitMQ.
-
-Note: Delete var/mysql-data folder if it is exist.
-
-3.Edit env.prod and set necessary user/password for MySQL and RabbitMQ.
-
-4.Elasticsearch is pre-configured with the following privileged bootstrap user:
-```bash
-user: elastic
-password: changeme
-```
-
-5.Build, start and install the docker images from your terminal:
 ```bash
 make build-prod
 make start-prod
 make generate-jwt-keys
-```
-
-6.Make sure that you have installed migrations / created roles and groups / cron jobs / messenger transports / elastic template:
-```bash
 make migrate-no-test
 make create-roles-groups
 make migrate-cron-jobs
@@ -170,195 +178,176 @@ make messenger-setup-transports
 make elastic-create-or-update-template
 ```
 
-## How to enable paid features for Elasticsearch
-Switch the value of Elasticsearch's `xpack.license.self_generated.type` option from `basic` to `trial` (`/docker/elasticsearch/config/elasticsearch.yml`).
+## Working with Containers
 
-## Getting shell to container
-After application will start (`make start`) and in order to get shell access inside symfony container you can run following command:
+Open a shell inside the PHP container:
+
 ```bash
 make ssh
 ```
-Note 1: Please use next make commands in order to enter in other containers: `make ssh-nginx`, `make ssh-supervisord`, `make ssh-mysql`, `make ssh-rabbitmq`.
 
-Note 2: Please use `exit` command in order to return from container's shell to local shell.
+Other helpful targets include `make ssh-nginx`, `make ssh-supervisord`, `make ssh-mysql`, `make ssh-rabbitmq`, `make ssh-elasticsearch`, and `make ssh-kibana`. Use `exit` to leave the container shell.
 
-## Building containers
-In case you edited Dockerfile or other environment configuration you'll need to build containers again using next commands:
+Rebuild containers after changing Dockerfiles or configuration:
+
 ```bash
 make down
 make build
 make start
 ```
-Note: Please use environment-specific commands if you need to build test/staging/prod environment, more details can be found using help `make help`.
 
-## Start and stop environment containers
-Please use next make commands in order to start and stop environment:
+To stop or remove environments:
+
 ```bash
-make start
-make stop
-```
-Note 1: For staging environment need to be used next make commands: `make start-staging`, `make stop-staging`.
-
-Note 2: For prod environment need to be used next make commands: `make start-prod`, `make stop-prod`.
-
-## Stop and remove environment containers, networks
-Please use next make commands in order to stop and remove environment containers, networks:
-```bash
-make down
-```
-Note: Please use environment-specific commands if you need to stop and remove test/staging/prod environment, more details can be found using help `make help`.
-
-## Additional main command available
-```bash
-make build
-make build-test
-make build-staging
-make build-prod
-
-make start
-make start-test
-make start-staging
-make start-prod
-
-make stop
-make stop-test
+make stop        # stop dev containers
 make stop-staging
 make stop-prod
 
-make down
-make down-test
+make down        # stop and remove dev containers
 make down-staging
 make down-prod
+```
 
-make restart
-make restart-test
-make restart-staging
-make restart-prod
+## Key Make Commands
 
-make env-staging
-make env-prod
+The project uses GNU Make to wrap everyday workflows. Explore all tasks with `make help`. Highlights include:
 
-make generate-jwt-keys
+```bash
+# Environment lifecycle
+make start            # start development stack
+make restart          # restart containers
+make info             # show container status
 
-make ssh
-make ssh-root
-make fish
-make ssh-nginx
-make ssh-supervisord
-make ssh-mysql
-make ssh-rabbitmq
-make ssh-elasticsearch
-make ssh-kibana
-
-make composer-install-no-dev
+# Composer shortcuts
 make composer-install
+make composer-install-no-dev
 make composer-update
 make composer-audit
 
-make info
-make help
-
-make logs
+# Logs
+make logs             # aggregate application logs
 make logs-nginx
-make logs-supervisord
 make logs-mysql
 make logs-rabbitmq
 make logs-elasticsearch
 make logs-kibana
 
-make drop-migrate
+# Database and fixtures
 make migrate
 make migrate-no-test
-make migrate-cron-jobs
-
+make drop-migrate
 make fixtures
 
-make create-roles-groups
-
+# Messaging & search
 make messenger-setup-transports
-
 make elastic-create-or-update-template
 
-make phpunit
-make report-code-coverage
-
-make phpcs
-make ecs
-make ecs-fix
-make phpmetrics
-make phpcpd
-make phpcpd-html-report
-make phpmd
-make phpstan
-make phpinsights
-
-etc....
+# Shell helpers
+make ssh
+make ssh-root
+make fish
 ```
-Notes: Please see more commands in Makefile
 
-## Architecture & packages
+Consult the `Makefile` for additional commands such as `make env-staging`, `make env-prod`, and specialised log/ssh targets for each service.
+
+## Testing and Quality Tools
+
+Quality assurance tasks are available via make:
+
+```bash
+make phpunit                 # run the test suite
+make report-code-coverage    # generate coverage report
+make phpcs                   # coding standards check
+make ecs                     # easy coding standard
+make ecs-fix                 # auto-fix coding style issues
+make phpmetrics              # collect complexity metrics
+make phpcpd                  # detect copy/paste
+make phpcpd-html-report      # HTML report for copy/paste detector
+make phpmd                   # mess detector
+make phpstan                 # static analysis
+make phpinsights             # comprehensive project insights
+```
+
+## Troubleshooting
+
+* **Slow file sync on macOS** – ensure virtiofs is enabled in Docker Desktop.
+* **Permission errors on MySQL data** – remove `var/mysql-data` before the first start so Docker can create the directory with correct permissions.
+* **Xdebug configuration** – toggle request triggering in `/docker/dev/xdebug-main.ini` (Linux/Windows) or `/docker/dev/xdebug-osx.ini` (macOS):
+  * Set `xdebug.start_with_request = no` to debug only when your browser extension (e.g., Xdebug Helper) is active with IDE key `PHPSTORM`.
+  * Set `xdebug.start_with_request = yes` to debug every incoming request automatically.
+* **Enabling Elasticsearch paid features** – change `xpack.license.self_generated.type` from `basic` to `trial` in `/docker/elasticsearch/config/elasticsearch.yml`.
+
+## Useful Packages
+
+The project bundles several Symfony bundles and PHP tools that demonstrate best practices:
+
 * [Symfony 7](https://symfony.com)
-* [doctrine-migrations-bundle](https://github.com/doctrine/DoctrineMigrationsBundle)
-* [doctrine-fixtures-bundle](https://github.com/doctrine/DoctrineFixturesBundle)
-* [command-scheduler-bundle](https://packagist.org/packages/dukecity/command-scheduler-bundle)
-* [phpunit](https://github.com/sebastianbergmann/phpunit)
+* [Doctrine Migrations Bundle](https://github.com/doctrine/DoctrineMigrationsBundle)
+* [Doctrine Fixtures Bundle](https://github.com/doctrine/DoctrineFixturesBundle)
+* [DukeCity Command Scheduler Bundle](https://packagist.org/packages/dukecity/command-scheduler-bundle)
+* [PHPUnit](https://github.com/sebastianbergmann/phpunit)
 * [dama/doctrine-test-bundle](https://packagist.org/packages/dama/doctrine-test-bundle)
-* [phpunit-bridge](https://github.com/symfony/phpunit-bridge)
-* [browser-kit](https://github.com/symfony/browser-kit)
-* [css-selector](https://github.com/symfony/css-selector)
-* [security-checker](https://github.com/fabpot/local-php-security-checker)
-* [messenger](https://symfony.com/doc/current/messenger.html)
+* [symfony/phpunit-bridge](https://github.com/symfony/phpunit-bridge)
+* [BrowserKit](https://github.com/symfony/browser-kit)
+* [CSS Selector](https://github.com/symfony/css-selector)
+* [local-php-security-checker](https://github.com/fabpot/local-php-security-checker)
+* [Symfony Messenger](https://symfony.com/doc/current/messenger.html)
 * [composer-bin-plugin](https://github.com/bamarni/composer-bin-plugin)
 * [composer-normalize](https://github.com/ergebnis/composer-normalize)
 * [composer-unused](https://packagist.org/packages/icanhazstring/composer-unused)
 * [composer-require-checker](https://packagist.org/packages/maglnet/composer-require-checker)
-* [requirements-checker](https://github.com/symfony/requirements-checker)
-* [security-advisories](https://github.com/Roave/SecurityAdvisories)
-* [jwt-authentication-bundle](https://packagist.org/packages/lexik/jwt-authentication-bundle)
-* [automapper-plus-bundle](https://packagist.org/packages/mark-gerarts/automapper-plus-bundle)
-* [symfony-console-form](https://packagist.org/packages/matthiasnoback/symfony-console-form)
-* [api-doc-bundle](https://packagist.org/packages/nelmio/api-doc-bundle)
-* [cors-bundle](https://packagist.org/packages/nelmio/cors-bundle)
-* [device-detector](https://packagist.org/packages/matomo/device-detector)
-* [uuid-doctrine](https://packagist.org/packages/ramsey/uuid-doctrine)
-* [doctrine-extensions](https://packagist.org/packages/gedmo/doctrine-extensions)
-* [easy-log-bundle](https://packagist.org/packages/systemsdk/easy-log-bundle)
+* [Symfony Requirements Checker](https://github.com/symfony/requirements-checker)
+* [Roave Security Advisories](https://github.com/Roave/SecurityAdvisories)
+* [Lexik JWT Authentication Bundle](https://packagist.org/packages/lexik/jwt-authentication-bundle)
+* [Automapper Plus Bundle](https://packagist.org/packages/mark-gerarts/automapper-plus-bundle)
+* [Symfony Console Form](https://packagist.org/packages/matthiasnoback/symfony-console-form)
+* [Nelmio API Doc Bundle](https://packagist.org/packages/nelmio/api-doc-bundle)
+
+### Additional Tooling
+
+Complementary packages used throughout the project include:
+
+* [Nelmio CORS Bundle](https://packagist.org/packages/nelmio/cors-bundle)
+* [Matomo Device Detector](https://packagist.org/packages/matomo/device-detector)
+* [ramsey/uuid-doctrine](https://packagist.org/packages/ramsey/uuid-doctrine)
+* [Gedmo Doctrine Extensions](https://packagist.org/packages/gedmo/doctrine-extensions)
+* [systems dk/easy-log-bundle](https://packagist.org/packages/systemsdk/easy-log-bundle)
 * [php-coveralls](https://github.com/php-coveralls/php-coveralls)
-* [easy-coding-standard](https://github.com/Symplify/EasyCodingStandard)
+* [Symplify Easy Coding Standard](https://github.com/Symplify/EasyCodingStandard)
 * [PhpMetrics](https://github.com/phpmetrics/PhpMetrics)
-* [phpcpd](https://packagist.org/packages/systemsdk/phpcpd)
-* [phpmd](https://packagist.org/packages/phpmd/phpmd)
-* [phpstan](https://packagist.org/packages/phpstan/phpstan)
-* [phpinsights](https://packagist.org/packages/nunomaduro/phpinsights)
-* [beberlei/doctrineextensions](https://github.com/beberlei/DoctrineExtensions)
-* [elasticsearch](https://github.com/elastic/elasticsearch-php)
-* [rector](https://packagist.org/packages/rector/rector)
+* [systems dk/phpcpd](https://packagist.org/packages/systemsdk/phpcpd)
+* [PHP Mess Detector](https://packagist.org/packages/phpmd/phpmd)
+* [PHPStan](https://packagist.org/packages/phpstan/phpstan)
+* [PHP Insights](https://packagist.org/packages/nunomaduro/phpinsights)
+* [beberlei/DoctrineExtensions](https://github.com/beberlei/DoctrineExtensions)
+* [elasticsearch-php](https://github.com/elastic/elasticsearch-php)
+* [Rector](https://packagist.org/packages/rector/rector)
 
-## External links / resources
-* [Symfony Flex REST API](https://github.com/tarlepp/symfony-flex-backend.git): code in "src/" folder forked from Symfony Flex REST API.
+## Additional Resources
 
-## Guidelines
-* [Commands](docs/commands.md)
-* [Api Key](docs/api-key.md)
-* [Development](docs/development.md)
-* [Testing](docs/testing.md)
-* [IDE PhpStorm configuration](docs/phpstorm.md)
-* [Xdebug configuration](docs/xdebug.md)
-* [Swagger](docs/swagger.md)
-* [Postman](docs/postman.md)
-* [Redis GUI](docs/rdm.md)
-* [Messenger component](docs/messenger.md)
+* [Symfony Flex REST API](https://github.com/tarlepp/symfony-flex-backend.git) – original project that inspired the contents of the `src/` directory.
+* Project documentation stored in the [`docs/`](docs) folder:
+  * [Commands overview](docs/commands.md)
+  * [API key management](docs/api-key.md)
+  * [Development workflow](docs/development.md)
+  * [Testing guide](docs/testing.md)
+  * [PhpStorm configuration](docs/phpstorm.md)
+  * [Xdebug configuration](docs/xdebug.md)
+  * [Swagger usage](docs/swagger.md)
+  * [Postman collection](docs/postman.md)
+  * [Redis Desktop Manager](docs/rdm.md)
+  * [Messenger component](docs/messenger.md)
 
-## Working on your project
-1. For new feature development, fork `develop` branch into a new branch with one of the two patterns:
-    * `feature/{ticketNo}`
-2. Commit often, and write descriptive commit messages, so its easier to follow steps taken when reviewing.
-3. Push this branch to the repo and create pull request into `develop` to get feedback, with the format `feature/{ticketNo}` - "Short descriptive title of Jira task".
-4. Iterate as needed.
-5. Make sure that "All checks have passed" on CircleCI(or another one in case you are not using CircleCI) and status is green.
-6. When PR is approved, it will be squashed & merged, into `develop` and later merged into `release/{No}` for deployment.
+## Contribution Guidelines
 
-Note: You can find git flow detail example [here](https://danielkummer.github.io/git-flow-cheatsheet).
+1. Branch from `develop` using the pattern `feature/{ticketNo}`.
+2. Commit early and often with descriptive messages to make reviews easier.
+3. Open a pull request targeting `develop` titled `feature/{ticketNo} – <short description>`.
+4. Iterate on feedback until all automated checks (CircleCI or equivalent) pass.
+5. Approved pull requests are squashed into `develop` and later merged into `release/{No}` for deployment.
+
+> Learn more about the branching strategy in the [git-flow cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet).
 
 ## License
-[The MIT License (MIT)](LICENSE)
+
+Distributed under the [MIT License](LICENSE).
