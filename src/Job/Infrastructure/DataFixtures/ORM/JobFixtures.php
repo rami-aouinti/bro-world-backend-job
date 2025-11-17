@@ -2,6 +2,7 @@
 
 namespace App\Job\Infrastructure\DataFixtures\ORM;
 
+use App\Job\Domain\Entity\Company;
 use App\Job\Domain\Entity\Job;
 use App\Job\Domain\Entity\Language as JobLanguage;
 use App\Job\Domain\Enum\ContractType;
@@ -26,8 +27,8 @@ final class JobFixtures extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         foreach ($this->jobs() as $jobData) {
-            /** @var \App\Job\Domain\Entity\Company $company */
-            $company = $this->getReference($jobData['company']);
+            /** @var Company $company */
+            $company = $this->getReference($jobData['company'], Company::class);
 
             $job = (new Job())
                 ->setTitle($jobData['title'])
