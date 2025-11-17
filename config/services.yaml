@@ -82,6 +82,9 @@ services:
     App\Job\Application\Service\ResumeService:
         arguments:
             $resumeDirectory: '%resume_directory%'
+
+    messenger.bus.command:
+        alias: messenger.bus.command_bus
 when@dev:
     services:
         _defaults:
