@@ -108,9 +108,11 @@ class Applicant
         return $this->firstName;
     }
 
-    public function setFirstName(?string $firstName): void
+    public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
+
+        return $this;
     }
 
     public function getLastName(): ?string
@@ -118,9 +120,11 @@ class Applicant
         return $this->lastName;
     }
 
-    public function setLastName(?string $lastName): void
+    public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
+
+        return $this;
     }
 
     public function getContactEmail(): ?string
@@ -128,9 +132,11 @@ class Applicant
         return $this->contactEmail;
     }
 
-    public function setContactEmail(?string $contactEmail): void
+    public function setContactEmail(?string $contactEmail): self
     {
         $this->contactEmail = $contactEmail;
+
+        return $this;
     }
 
     public function getPhone(): ?string
@@ -138,9 +144,11 @@ class Applicant
         return $this->phone;
     }
 
-    public function setPhone(?string $phone): void
+    public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
     }
 
     public function getResume(): ?string
@@ -148,9 +156,11 @@ class Applicant
         return $this->resume;
     }
 
-    public function setResume(?string $resume): void
+    public function setResume(?string $resume): self
     {
         $this->resume = $resume;
+
+        return $this;
     }
 
     public function getUser(): UuidInterface
@@ -158,9 +168,11 @@ class Applicant
         return $this->user;
     }
 
-    public function setUser(UuidInterface $user): void
+    public function setUser(UuidInterface $user): self
     {
         $this->user = $user;
+
+        return $this;
     }
 
     public function toArray(): array
