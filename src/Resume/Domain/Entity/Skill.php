@@ -122,9 +122,11 @@ class Skill
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getType(): ?string
@@ -132,9 +134,11 @@ class Skill
         return $this->type;
     }
 
-    public function setType(?string $type): void
+    public function setType(?string $type): static
     {
         $this->type = $type;
+
+        return $this;
     }
 
     public function getLevel(): ?int
@@ -142,9 +146,11 @@ class Skill
         return $this->level;
     }
 
-    public function setLevel(?int $level): void
+    public function setLevel(?int $level): static
     {
         $this->level = $level;
+
+        return $this;
     }
 
     public function getUser(): UuidInterface
