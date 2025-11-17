@@ -7,6 +7,8 @@ parameters:
     locale: 'en'
     app.notifications.email_sender: admin@localhost
     api_media_base_url: '%env(API_MEDIA_BASE_URL)%'
+    bro_world_api_base_url: '%env(BRO_WORLD_API_BASE_URL)%'
+    bro_world_api_token: '%env(BRO_WORLD_API_TOKEN)%'
     uploads_directory: '%kernel.project_dir%/public/uploads'
     uploadAbsoluteDir: '%kernel.project_dir%/public/%uploadDir%'
     logo_directory: '%kernel.project_dir%/public/uploads/companies/logo'
@@ -82,6 +84,11 @@ services:
     App\Job\Application\Service\ResumeService:
         arguments:
             $resumeDirectory: '%resume_directory%'
+    App\Job\Application\ApiProxy\UserProxy:
+        arguments:
+            $broWorldApiBaseUrl: '%bro_world_api_base_url%'
+            $broWorldApiToken: '%bro_world_api_token%'
+            $mediaApiBaseUrl: '%api_media_base_url%'
 
     messenger.bus.command:
         alias: messenger.bus.command_bus
