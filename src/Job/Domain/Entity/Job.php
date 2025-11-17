@@ -161,9 +161,11 @@ class Job
         return $this->work;
     }
 
-    public function setWork(?string $work): void
+    public function setWork(?string $work): self
     {
         $this->work = $work;
+
+        return $this;
     }
 
     public function getLanguages(): Collection
@@ -235,9 +237,11 @@ class Job
         return $this->workLocation;
     }
 
-    public function setWorkLocation(?string $workLocation): void
+    public function setWorkLocation(?string $workLocation): self
     {
         $this->workLocation = $workLocation;
+
+        return $this;
     }
 
     public function getSalaryRange(): ?string
@@ -245,9 +249,11 @@ class Job
         return $this->salaryRange;
     }
 
-    public function setSalaryRange(?string $salaryRange): void
+    public function setSalaryRange(?string $salaryRange): self
     {
         $this->salaryRange = $salaryRange;
+
+        return $this;
     }
 
     public function getContractType(): ?ContractType
@@ -267,9 +273,11 @@ class Job
         return $this->requirements;
     }
 
-    public function setRequirements(?array $requirements): void
+    public function setRequirements(?array $requirements): self
     {
         $this->requirements = $requirements;
+
+        return $this;
     }
 
     public function getBenefits(): ?string
@@ -277,9 +285,11 @@ class Job
         return $this->benefits;
     }
 
-    public function setBenefits(?string $benefits): void
+    public function setBenefits(?string $benefits): self
     {
         $this->benefits = $benefits;
+
+        return $this;
     }
 
     public function getCompany(): ?Company
@@ -299,9 +309,11 @@ class Job
         return $this->user;
     }
 
-    public function setUser(UuidInterface $user): void
+    public function setUser(UuidInterface $user): self
     {
         $this->user = $user;
+
+        return $this;
     }
 
     public function toArray(): array
