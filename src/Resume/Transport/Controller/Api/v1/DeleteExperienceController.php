@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\Resume\Domain\Entity\Skill;
+use App\Resume\Domain\Entity\Experience;
 use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
@@ -16,22 +16,22 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
 #[OA\Tag(name: 'Resume')]
-class DeleteSkillController
+class DeleteExperienceController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 
-    #[Route(path: '/v1/resume/skill/{skill}', methods: [Request::METHOD_DELETE])]
-    public function __invoke(SymfonyUser $loggedInUser, Skill $skill): JsonResponse
+    #[Route(path: '/v1/resume/experience/{experience}', methods: [Request::METHOD_DELETE])]
+    public function __invoke(SymfonyUser $loggedInUser, Experience $experience): JsonResponse
     {
-        if ($skill->getUser()->toString() !== $loggedInUser->getId()) {
-            throw new AccessDeniedHttpException('You cannot delete this skill.');
+        if ($experience->getUser()->toString() !== $loggedInUser->getId()) {
+            throw new AccessDeniedHttpException('You cannot delete this experience.');
         }
 
-        $this->entityManager->remove($skill);
+        $this->entityManager->remove($experience);
         $this->entityManager->flush();
 
-        return new JsonResponse(['message' => 'skill deleted']);
+        return new JsonResponse(['message' => 'experience deleted']);
     }
 }

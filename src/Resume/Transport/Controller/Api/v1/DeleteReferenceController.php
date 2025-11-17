@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\Resume\Domain\Entity\Skill;
+use App\Resume\Domain\Entity\Reference;
 use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
@@ -16,22 +16,22 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
 #[OA\Tag(name: 'Resume')]
-class DeleteSkillController
+class DeleteReferenceController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 
-    #[Route(path: '/v1/resume/skill/{skill}', methods: [Request::METHOD_DELETE])]
-    public function __invoke(SymfonyUser $loggedInUser, Skill $skill): JsonResponse
+    #[Route(path: '/v1/resume/reference/{reference}', methods: [Request::METHOD_DELETE])]
+    public function __invoke(SymfonyUser $loggedInUser, Reference $reference): JsonResponse
     {
-        if ($skill->getUser()->toString() !== $loggedInUser->getId()) {
-            throw new AccessDeniedHttpException('You cannot delete this skill.');
+        if ($reference->getUser()->toString() !== $loggedInUser->getId()) {
+            throw new AccessDeniedHttpException('You cannot delete this reference.');
         }
 
-        $this->entityManager->remove($skill);
+        $this->entityManager->remove($reference);
         $this->entityManager->flush();
 
-        return new JsonResponse(['message' => 'skill deleted']);
+        return new JsonResponse(['message' => 'reference deleted']);
     }
 }
