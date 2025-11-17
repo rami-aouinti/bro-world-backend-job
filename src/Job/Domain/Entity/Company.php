@@ -174,9 +174,11 @@ class Company
         return $this->logo;
     }
 
-    public function setLogo(?string $logo): void
+    public function setLogo(?string $logo): self
     {
         $this->logo = $logo;
+
+        return $this;
     }
 
     public function getSiteUrl(): ?string
@@ -184,9 +186,11 @@ class Company
         return $this->siteUrl;
     }
 
-    public function setSiteUrl(?string $siteUrl): void
+    public function setSiteUrl(?string $siteUrl): self
     {
         $this->siteUrl = $siteUrl;
+
+        return $this;
     }
 
     public function getMedias(): Collection
