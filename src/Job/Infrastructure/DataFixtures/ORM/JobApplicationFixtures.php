@@ -2,6 +2,8 @@
 
 namespace App\Job\Infrastructure\DataFixtures\ORM;
 
+use App\Job\Domain\Entity\Applicant;
+use App\Job\Domain\Entity\Job;
 use App\Job\Domain\Entity\JobApplication;
 use App\Job\Domain\Enum\ApplicationStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -13,10 +15,10 @@ final class JobApplicationFixtures extends Fixture implements DependentFixtureIn
     public function load(ObjectManager $manager): void
     {
         foreach ($this->applications() as $applicationData) {
-            /** @var \App\Job\Domain\Entity\Job $job */
-            $job = $this->getReference($applicationData['job']);
-            /** @var \App\Job\Domain\Entity\Applicant $applicant */
-            $applicant = $this->getReference($applicationData['applicant']);
+            /** @var Job $job */
+            $job = $this->getReference($applicationData['job'], Job::class);
+            /** @var Applicant $applicant */
+            $applicant = $this->getReference($applicationData['applicant'], Applicant::class);
 
             $application = (new JobApplication())
                 ->setJob($job)
