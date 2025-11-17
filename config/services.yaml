@@ -95,6 +95,8 @@ when@dev:
             resource: '../tests/Utils/*'
         App\Resume\Infrastructure\DataFixtures\:
             resource: '../src/Resume/Infrastructure/DataFixtures/*'
+        App\Job\Infrastructure\DataFixtures\:
+            resource: '../src/Job/Infrastructure/DataFixtures/*'
         ProxyManager\Factory\AccessInterceptorValueHolderFactory:
             class: ProxyManager\Factory\AccessInterceptorValueHolderFactory
 
@@ -111,3 +113,7 @@ when@test:
 
         App\Tests\Utils\:
             resource: '../tests/Utils/*'
+        App\Resume\Infrastructure\DataFixtures\:
+            resource: '../src/Resume/Infrastructure/DataFixtures/*'
+        App\Job\Infrastructure\DataFixtures\:
+            resource: '../src/Job/Infrastructure/DataFixtures/*'
