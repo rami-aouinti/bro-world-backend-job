@@ -136,9 +136,11 @@ class Formation
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getSchool(): ?string
@@ -146,9 +148,11 @@ class Formation
         return $this->school;
     }
 
-    public function setSchool(?string $school): void
+    public function setSchool(?string $school): static
     {
         $this->school = $school;
+
+        return $this;
     }
 
     public function getGradeLevel(): ?int
@@ -156,9 +160,11 @@ class Formation
         return $this->gradeLevel;
     }
 
-    public function setGradeLevel(?int $gradeLevel): void
+    public function setGradeLevel(?int $gradeLevel): static
     {
         $this->gradeLevel = $gradeLevel;
+
+        return $this;
     }
 
     public function getDescription(): ?string
@@ -166,9 +172,11 @@ class Formation
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
     }
 
     public function getStartedAt(): ?DateTimeInterface
