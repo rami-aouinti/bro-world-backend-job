@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\Resume\Domain\Entity\Skill;
+use App\Resume\Domain\Entity\Hobby;
 use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsController]
 #[OA\Tag(name: 'Resume')]
-class UpdateSkillController
+class UpdateHobbyController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
@@ -30,30 +30,26 @@ class UpdateSkillController
     /**
      * @throws JsonException
      */
-    #[Route(path: '/v1/resume/skill/{skill}', methods: [Request::METHOD_PATCH])]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request, Skill $skill): JsonResponse
+    #[Route(path: '/v1/resume/hobby/{hobby}', methods: [Request::METHOD_PATCH])]
+    public function __invoke(SymfonyUser $loggedInUser, Request $request, Hobby $hobby): JsonResponse
     {
-        if ($skill->getUser()->toString() !== $loggedInUser->getId()) {
-            throw new AccessDeniedHttpException('You cannot edit this skill.');
+        if ($hobby->getUser()->toString() !== $loggedInUser->getId()) {
+            throw new AccessDeniedHttpException('You cannot edit this hobby.');
         }
 
         if (($name = $request->request->get('name')) !== null) {
-            $skill->setName($name);
+            $hobby->setName($name);
         }
 
-        if (($type = $request->request->get('type')) !== null) {
-            $skill->setType($type);
-        }
-
-        if (($level = $request->request->get('level')) !== null) {
-            $skill->setLevel((int) $level);
+        if (($icon = $request->request->get('icon')) !== null) {
+            $hobby->setIcon($icon);
         }
 
         $this->entityManager->flush();
 
         /** @var array<string, mixed> $output */
         $output = JSON::decode(
-            $this->serializer->serialize($skill, 'json', ['groups' => 'Skill']),
+            $this->serializer->serialize($hobby, 'json', ['groups' => 'Hobby']),
             true,
         );
 

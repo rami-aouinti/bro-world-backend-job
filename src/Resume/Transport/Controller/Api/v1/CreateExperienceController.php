@@ -56,8 +56,9 @@ class CreateExperienceController extends AbstractController
         $experience->setCompany($request->request->get('company'));
         $experience->setDescription($request->request->get('description'));
         $experience->setUser(Uuid::fromString($loggedInUser->getId()));
-        $experience->setStartedAt(new DateTimeImmutable($request->request->get('startedAt')));
-        $experience->setEndedAt(new DateTimeImmutable($request->request->get('endedAt')));
+        $experience->setStartedAt(new DateTimeImmutable($request->request->get('startedAt') ?? 'now'));
+        $endedAt = $request->request->get('endedAt');
+        $experience->setEndedAt($endedAt ? new DateTimeImmutable($endedAt) : null);
 
         $this->entityManager->persist($experience);
         $this->entityManager->flush();

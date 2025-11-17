@@ -62,8 +62,9 @@ class CreateReferenceController extends AbstractController
         $reference->setTitle($request->request->get('referenceTitle'));
         $reference->setDescription($request->request->get('referenceDescription'));
         $reference->setCompany($request->request->get('referenceCompany'));
-        $reference->setStartedAt(new DateTimeImmutable($request->request->get('referenceStartedAt')));
-        $reference->setEndedAt(new DateTimeImmutable($request->request->get('referenceEndedAt')));
+        $reference->setStartedAt(new DateTimeImmutable($request->request->get('referenceStartedAt') ?? 'now'));
+        $endedAt = $request->request->get('referenceEndedAt');
+        $reference->setEndedAt($endedAt ? new DateTimeImmutable($endedAt) : null);
         $reference->setUser(Uuid::fromString($loggedInUser->getId()));
 
         $files = $request->files->get('photo');

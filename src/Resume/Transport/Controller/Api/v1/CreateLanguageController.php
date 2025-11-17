@@ -52,20 +52,25 @@ class CreateLanguageController extends AbstractController
     ): JsonResponse {
 
         $language = $languageRepository->findOneBy([
-            'name' => $request->request->get('language')
+            'name' => $request->request->get('name'),
+            'user' => Uuid::fromString($loggedInUser->getId()),
         ]);
 
-        if($language) {
-           $language->setLevel((int)$request->request->get('level'));
+        if ($language) {
+            $language->setLevel((int) $request->request->get('level'));
+            if (($flag = $request->request->get('flag')) !== null) {
+                $language->setFlag($flag);
+            }
         } else {
             $language = new Language();
             $language->setUser(Uuid::fromString($loggedInUser->getId()));
             $language->setName($request->request->get('name'));
-            $language->setLevel((int)$request->request->get('level'));
+            $language->setLevel((int) $request->request->get('level'));
             $language->setFlag($request->request->get('flag'));
         }
 
         $this->entityManager->persist($language);
+        $this->entityManager->flush();
 
         /** @var array<string, string|array<string, string>> $output */
         $output = JSON::decode(

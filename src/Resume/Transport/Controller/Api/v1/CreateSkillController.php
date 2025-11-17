@@ -55,7 +55,7 @@ class CreateSkillController extends AbstractController
 
         $skill = $skillRepository->findOneBy([
             'name' => $request->request->get('name'),
-            'user' => $loggedInUser
+            'user' => Uuid::fromString($loggedInUser->getId()),
         ]);
 
         if (!$skill) {

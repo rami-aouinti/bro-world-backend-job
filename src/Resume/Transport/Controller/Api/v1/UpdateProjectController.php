@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\Resume\Domain\Entity\Skill;
+use App\Resume\Domain\Entity\Project;
 use Bro\WorldCoreBundle\Domain\Utils\JSON;
-use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsController]
 #[OA\Tag(name: 'Resume')]
-class UpdateSkillController
+class UpdateProjectController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
@@ -30,30 +28,26 @@ class UpdateSkillController
     /**
      * @throws JsonException
      */
-    #[Route(path: '/v1/resume/skill/{skill}', methods: [Request::METHOD_PATCH])]
-    public function __invoke(SymfonyUser $loggedInUser, Request $request, Skill $skill): JsonResponse
+    #[Route(path: '/v1/resume/project/{project}', methods: [Request::METHOD_PATCH])]
+    public function __invoke(Request $request, Project $project): JsonResponse
     {
-        if ($skill->getUser()->toString() !== $loggedInUser->getId()) {
-            throw new AccessDeniedHttpException('You cannot edit this skill.');
-        }
-
         if (($name = $request->request->get('name')) !== null) {
-            $skill->setName($name);
+            $project->setName($name);
         }
 
-        if (($type = $request->request->get('type')) !== null) {
-            $skill->setType($type);
+        if (($description = $request->request->get('description')) !== null) {
+            $project->setDescription($description);
         }
 
-        if (($level = $request->request->get('level')) !== null) {
-            $skill->setLevel((int) $level);
+        if (($gitLink = $request->request->get('gitLink')) !== null) {
+            $project->setGitLink($gitLink === '' ? null : $gitLink);
         }
 
         $this->entityManager->flush();
 
         /** @var array<string, mixed> $output */
         $output = JSON::decode(
-            $this->serializer->serialize($skill, 'json', ['groups' => 'Skill']),
+            $this->serializer->serialize($project, 'json', ['groups' => 'Project']),
             true,
         );
 
