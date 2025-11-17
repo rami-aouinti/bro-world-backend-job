@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Resume\Domain\Entity\Language;
 use App\Resume\Infrastructure\Repository\LanguageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -59,7 +59,7 @@ class CreateLanguageController extends AbstractController
            $language->setLevel((int)$request->request->get('level'));
         } else {
             $language = new Language();
-            $language->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+            $language->setUser(Uuid::fromString($loggedInUser->getId()));
             $language->setName($request->request->get('name'));
             $language->setLevel((int)$request->request->get('level'));
             $language->setFlag($request->request->get('flag'));

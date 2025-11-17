@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Resume\Domain\Entity\Experience;
 use App\Resume\Domain\Entity\Formation;
 use DateTimeImmutable;
@@ -55,7 +55,7 @@ class CreateExperienceController extends AbstractController
         $experience->setTitle($request->request->get('title'));
         $experience->setCompany($request->request->get('company'));
         $experience->setDescription($request->request->get('description'));
-        $experience->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $experience->setUser(Uuid::fromString($loggedInUser->getId()));
         $experience->setStartedAt(new DateTimeImmutable($request->request->get('startedAt')));
         $experience->setEndedAt(new DateTimeImmutable($request->request->get('endedAt')));
 

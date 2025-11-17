@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Job\Transport\Controller\Api\v1\Company;
 
-use App\General\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
 use App\Tests\TestCase\WebTestCase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

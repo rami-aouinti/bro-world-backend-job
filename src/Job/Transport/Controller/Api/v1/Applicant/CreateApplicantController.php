@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Applicant;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\Service\ResumeService;
 use App\Job\Domain\Entity\Applicant;
 use App\Job\Infrastructure\Repository\ApplicantRepository;
@@ -50,7 +50,7 @@ readonly class CreateApplicantController
         $applicant->setLastName($request->request->get('lastName'));
         $applicant->setContactEmail($request->request->get('contactEmail'));
         $applicant->setPhone($request->request->get('phone'));
-        $applicant->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $applicant->setUser(Uuid::fromString($loggedInUser->getId()));
         if ($request->files->get('file')) {
             try {
                 $resume = $this->resumeService->uploadCV($request);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Resume\Domain\Entity\Formation;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,7 +54,7 @@ readonly class CreateEducationController
         $education->setDescription($request->request->get('description'));
         $education->setSchool($request->request->get('school'));
         $education->setGradeLevel((int)$request->request->get('gradeLevel'));
-        $education->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $education->setUser(Uuid::fromString($loggedInUser->getId()));
         $education->setStartedAt(new DateTimeImmutable('now'));
         $education->setEndedAt(new DateTimeImmutable('now'));
 

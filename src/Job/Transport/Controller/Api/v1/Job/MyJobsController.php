@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Job;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\ApplicantRepository;
 use App\Job\Infrastructure\Repository\JobApplicationRepository;
@@ -104,7 +104,7 @@ readonly class MyJobsController
         }
 
         $qb->andWhere('j.user = :user')
-            ->setParameter('user', $loggedInUser->getUserIdentifier());
+            ->setParameter('user', $loggedInUser->getId());
 
         $qb->orderBy('j.createdAt', 'DESC');
         $qb->setFirstResult($offset)->setMaxResults($limit);
@@ -112,7 +112,7 @@ readonly class MyJobsController
         $jobs = $qb->getQuery()->getResult();
 
         $applicants = $this->applicantRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
         $response = [];
         foreach ($jobs as $key => $job) {
@@ -129,7 +129,7 @@ readonly class MyJobsController
             $response[$key]['applications'] = $this->jobApplicationRepository->findBy([
                 'job' => $job->getId(),
             ]);
-            $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
+            $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getId();
             $response[$key]['applied'] = $applied !== null;
             $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
         }

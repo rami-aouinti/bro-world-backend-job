@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\CompanyRepository;
 use App\Resume\Infrastructure\Repository\ExperienceRepository;
@@ -53,19 +53,19 @@ readonly class GetResumeController
     {
         $response = [];
         $response['educations'] = $this->formationRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
         $response['experiences'] = $this->experienceRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
         $response['skills'] = $this->skillRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
         $response['languages'] = $this->languageRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
         $response['hobbies'] = $this->hobbyRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
 
         /** @var array<string, string|array<string, string>> $output */

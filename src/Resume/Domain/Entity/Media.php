@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Domain\Entity;
 
-use App\General\Domain\Entity\Traits\Timestampable;
-use App\General\Domain\Entity\Traits\Uuid;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\Timestampable;
+use Bro\WorldCoreBundle\Domain\Entity\Traits\Uuid;
 use App\Resume\Domain\Repository\MediaRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

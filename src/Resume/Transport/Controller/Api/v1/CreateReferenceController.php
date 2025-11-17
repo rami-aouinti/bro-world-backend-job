@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Resume\Domain\Entity\Media;
 use App\Resume\Domain\Entity\Project;
 use App\Resume\Domain\Entity\Reference;
@@ -64,7 +64,7 @@ class CreateReferenceController extends AbstractController
         $reference->setCompany($request->request->get('referenceCompany'));
         $reference->setStartedAt(new DateTimeImmutable($request->request->get('referenceStartedAt')));
         $reference->setEndedAt(new DateTimeImmutable($request->request->get('referenceEndedAt')));
-        $reference->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $reference->setUser(Uuid::fromString($loggedInUser->getId()));
 
         $files = $request->files->get('photo');
 

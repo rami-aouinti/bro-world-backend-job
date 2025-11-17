@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Application;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Domain\Entity\Applicant;
 use App\Job\Domain\Entity\Company;
 use App\Job\Domain\Entity\JobApplication;

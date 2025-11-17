@@ -16,7 +16,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[OA\Tag(name: "Company")]
-class CompanyController extends AbstractController
+class CompanyController
 {
     /**
      * @throws JsonException
@@ -60,7 +60,7 @@ class CompanyController extends AbstractController
         CompanyRepository $repository,
         Request $request,
         ValidatorInterface $validator
-    ): Response
+    ): JsonResponse
     {
         $jsonParams = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 

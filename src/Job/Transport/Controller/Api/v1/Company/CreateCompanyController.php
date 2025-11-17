@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Company;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\Service\CompanyService;
 use App\Job\Domain\Entity\Company;
 use App\Job\Infrastructure\Repository\CompanyRepository;
@@ -64,7 +64,7 @@ readonly class CreateCompanyController
 
         $company->setSiteUrl($request->request->get('siteUrl') ?? '');
         //$company->setMedias($jsonParams['medias'] ?? []);
-        $company->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $company->setUser(Uuid::fromString($loggedInUser->getId()));
         $violations = $this->validator->validate($company);
         $this->companyRepository->save($company, true);
         /** @var array<string, string|array<string, string>> $output */

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Job;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\JobRepository;
 use JsonException;
@@ -43,7 +43,7 @@ readonly class UserJobController
     {
         $qb = $this->jobRepository->createQueryBuilder('j');
         $qb->andWhere('j.user = :user')
-            ->setParameter('user', $loggedInUser->getUserIdentifier());
+            ->setParameter('user', $loggedInUser->getId());
         $title = $request->query->get('title');
         if ($title !== null) {
             $qb->andWhere('j.title = :title')

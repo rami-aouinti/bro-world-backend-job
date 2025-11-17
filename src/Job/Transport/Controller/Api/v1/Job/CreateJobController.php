@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Job;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Domain\Entity\Job;
 use App\Job\Domain\Entity\Language;
 use App\Job\Domain\Enum\ContractType;
@@ -81,7 +81,7 @@ class CreateJobController
             }
         }
         $job->setCompany($company);
-        $job->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $job->setUser(Uuid::fromString($loggedInUser->getId()));
         $job->setExperience($jsonParams['experience']);
 
         $violations = $this->validator->validate($job);

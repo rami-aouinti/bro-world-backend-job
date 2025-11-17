@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Job;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Domain\Entity\Job;
 use App\Job\Infrastructure\Repository\ApplicantRepository;
@@ -65,7 +65,7 @@ readonly class GetJobController
             $usersById[$user['id']] = $user;
         }
         $applicants = $this->applicantRepository->findBy([
-            'user' => $loggedInUser->getUserIdentifier(),
+            'user' => $loggedInUser->getId(),
         ]);
         $response = [];
         $applied = null;
@@ -78,7 +78,7 @@ readonly class GetJobController
             }
         }
         $response = $job->toArray();
-        $response['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
+        $response['owner'] = $job->getUser()->toString() === $loggedInUser->getId();
         $response['applied'] = $applied !== null;
         $response['user'] = $usersById[$job->getUser()->toString()] ?? null;
 

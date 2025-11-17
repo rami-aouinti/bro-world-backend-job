@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Resume\Domain\Entity\Hobby;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
@@ -50,7 +50,7 @@ class CreateHobbyController extends AbstractController
     ): JsonResponse {
         $hobby = new Hobby();
         $hobby->setName($request->request->get('name'));
-        $hobby->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+        $hobby->setUser(Uuid::fromString($loggedInUser->getId()));
         $hobby->setIcon($request->request->get('icon'));
 
         $this->entityManager->persist($hobby);

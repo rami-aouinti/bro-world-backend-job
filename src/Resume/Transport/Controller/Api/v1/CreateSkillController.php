@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Resume\Transport\Controller\Api\v1;
 
-use App\General\Domain\Utils\JSON;
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Domain\Utils\JSON;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Resume\Domain\Entity\Skill;
 use App\Resume\Infrastructure\Repository\SkillRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,7 +60,7 @@ class CreateSkillController extends AbstractController
 
         if (!$skill) {
             $skill = new Skill();
-            $skill->setUser(Uuid::fromString($loggedInUser->getUserIdentifier()));
+            $skill->setUser(Uuid::fromString($loggedInUser->getId()));
             $skill->setName($request->request->get('name'));
         }
         $skill->setLevel((int)$request->request->get('level'));

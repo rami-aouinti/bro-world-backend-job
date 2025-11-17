@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Job\Transport\Controller\Api\v1\Job;
 
-use App\General\Infrastructure\ValueObject\SymfonyUser;
+use Bro\WorldCoreBundle\Infrastructure\ValueObject\SymfonyUser;
 use App\Job\Application\ApiProxy\UserProxy;
 use App\Job\Infrastructure\Repository\ApplicantRepository;
 use App\Job\Infrastructure\Repository\JobApplicationRepository;
@@ -120,7 +120,7 @@ readonly class IndexController
             $jobs = $qb->getQuery()->getResult();
 
             $applicants = $this->applicantRepository->findBy([
-                'user' => $loggedInUser->getUserIdentifier(),
+                'user' => $loggedInUser->getId(),
             ]);
             $response = [];
             foreach ($jobs as $key => $job) {
@@ -134,7 +134,7 @@ readonly class IndexController
                     }
                 }
                 $response[$key] = $job->toArray();
-                $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getUserIdentifier();
+                $response[$key]['owner'] = $job->getUser()->toString() === $loggedInUser->getId();
                 $response[$key]['applied'] = $applied !== null;
                 $response[$key]['user'] = $usersById[$job->getUser()->toString()] ?? null;
                 $response[$key]['languages'] = array_map(static function ($l) {
