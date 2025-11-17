@@ -65,6 +65,10 @@ services:
     App\Resume\Domain\EntityListener\:
         resource: '../src/Resume/Domain/EntityListener'
         tags: [ 'doctrine.orm.entity_listener' ]
+    App\Resume\Domain\EntityListener\MediaListener:
+        arguments:
+            $uploadDir: '%uploadDir%'
+            $uploadAbsoluteDir: '%uploadAbsoluteDir%'
 
     App\Resume\Transport\Form\Type\IconChoiceType:
         class: App\Resume\Transport\Form\Type\IconChoiceType
