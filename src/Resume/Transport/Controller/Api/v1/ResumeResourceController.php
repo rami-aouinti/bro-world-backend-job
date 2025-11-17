@@ -55,7 +55,6 @@ class ResumeResourceController extends AbstractController
         private readonly ManagerRegistry $managerRegistry,
         private readonly TagAwareCacheInterface $cache,
         private readonly SerializerInterface $serializer,
-        #[Autowire(service: 'messenger.bus.command')]
         private readonly MessageBusInterface $commandBus,
     ) {
     }
