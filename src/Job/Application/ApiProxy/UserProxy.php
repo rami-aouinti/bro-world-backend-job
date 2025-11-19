@@ -21,9 +21,11 @@ readonly class UserProxy
 {
 
     public function __construct(
-        private HttpClientInterface $httpClient
-    )
-    {
+        private HttpClientInterface $httpClient,
+        private string $broWorldApiBaseUrl,
+        private string $broWorldApiToken,
+        private string $mediaApiBaseUrl,
+    ) {
     }
 
     /**
@@ -35,9 +37,9 @@ readonly class UserProxy
      */
     public function getUsers(): array
     {
-        $response = $this->httpClient->request('GET', "https://bro-world.org/api/v1/user", [
+        $response = $this->httpClient->request('GET', $this->buildUrl($this->broWorldApiBaseUrl, '/api/v1/user'), [
             'headers' => [
-                'Authorization' => 'ApiKey u6gzbhNYEr5WkvVUxuZUeh7iEJsbUxDEpqpy1uCV',
+                'Authorization' => sprintf('ApiKey %s', $this->broWorldApiToken),
             ],
         ]);
 
@@ -58,9 +60,14 @@ readonly class UserProxy
     {
         $response = $this->httpClient->request(
             'GET',
-            "https://media.bro-world.org/v1/platform/media/" . $mediaId
+            $this->buildUrl($this->mediaApiBaseUrl, sprintf('v1/platform/media/%s', $mediaId))
         );
 
         return $response->toArray();
+    }
+
+    private function buildUrl(string $baseUrl, string $path): string
+    {
+        return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
     }
 }
